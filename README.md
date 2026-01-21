@@ -1,132 +1,70 @@
-Unified Submission Portal – Project Overview
+STUDENT ROLE (Straight-line Demo)
 
-Unified Submission Portal is a secure, professional system for students and lecturers to submit, manage, and grade assignments. It is designed for scalability, supporting thousands of students while enforcing role-based access, file integrity, and smooth user experience.
+Student can:
 
+Choose Student role from preloader
 
+Sign up with Full Name, Matric Number, Faculty, Department, Password
 
-Key Features
+Log in with Matric Number + Password
 
-Role-based preloader: Student or Lecturer selection before login
+Profile shows Full Name, Faculty, Department, Email (optional)
 
-Secure login/signup with matric number or staff ID
+Nav links: Home | About | Help | Logout
 
-Faculty → Department → Level → Course selection
+Select Level (100–500) manually
 
-Assignment submission with multiple file types (Document, Image, Text, Mixed)
+View courses based on selected level
 
-Submission history with grades and statuses
+See assignment status: Available / Submitted / No assignment
 
-Lecturer grading with quick-score buttons and editable marks
+Open course with active assignment
 
-File integrity checks (hashing) and upload validation
+View assignment details (Title, Deadline, Allowed Submission Type)
 
-Responsive, clean UI following KWASU-inspired color palette
+Submit assignment as Document / Image / Text / Mixed
 
+Get instant submission confirmation
 
-Demo Walkthrough
-1️⃣ Preloader
+View submission history at bottom of dashboard
 
-Shows animated portal name (“UNIFIED SUBMISSION PORTAL”) for 3 seconds
+See scores after lecturer grades
 
-User selects role (Student / Lecturer)
+Update profile
 
-Redirects to login page for the chosen role
+Logout
 
-2️⃣ Login Page
 
-Fields:
 
-Students: Matric Number + Password
 
-Lecturers: Staff ID + Password
+LECTURER ROLE (Straight-line Demo)
 
-Links:
+Lecturer can:
 
-“Forgot Password?”
+Choose Lecturer role from preloader
 
-“Create an Account” → signup page
+Sign up with Name, Email, Staff ID, Password, Confirm Password
 
-Clear error messages for invalid credentials
+Log in with Staff ID or Email + Password
 
-3️⃣ Signup Page
+Enter Unique Course Key (UCK) to access a course
 
-Fields:
+View only courses linked to valid UCK
 
-Student: Matric Number, Faculty, Department, Level, Password
+Create assignments (Title, Type, Total Marks, Submission Window / Date & Time)
 
-Lecturer: Staff ID, Faculty, Department, Password
+Publish and close assignments
 
-Faculty → Department → Level → Course dropdowns (dynamic)
+View student submissions per assignment
 
-Submit button validates inputs before sending to backend
+Filter submissions (Graded / Ungraded)
 
-4️⃣ Student Dashboard
+Preview submissions without downloading
 
-Shows enrolled courses based on level and department
+Grade using Quick Buttons or Custom Score
 
-Each course links to assignment submission page
+Add optional Feedback
 
-Submission history table shows:
+Edit scores anytime
 
-Assignment title
-
-Course
-
-Status (Submitted / Pending)
-
-Score (after grading)
-
-5️⃣ Assignment Submission
-
-Choose submission type: Document, Image, Text, Mixed
-
-File upload validation (type, size)
-
-Progress bar for upload
-
-Auto-hash verification after submission
-
-6️⃣ Lecturer Dashboard
-
-Courses displayed via Unique Course Key (UCK)
-
-Assignment list per course
-
-Grading interface:
-
-Quick-score buttons (5, 10, 15, 20, Full marks)
-
-Click once → auto-save
-
-Editable if lecturer wants to update score
-
-Submission list shows student submissions with status
-
-7️⃣ Profile Page
-
-Students and lecturers can:
-
-View personal info
-
-Edit profile or change password
-
-Dashboard and profile separated for clarity
-
-
-
-
-
-Team Notes / Development Guidelines
-
-
-Role enforcement: Ensure students cannot access lecturer pages and vice versa
-
-JWT Tokens: Store securely (localStorage/sessionStorage), attach to all protected API calls
-
-Input validation: No empty fields, proper email/ID format
-
-File uploads: Only allowed types; show progress and feedback
-
-UI consistency: Follow KWASU-inspired color palette and layout
-
-Backend integration: All pages communicate with C# endpoints using structured API contracts
+Logout
