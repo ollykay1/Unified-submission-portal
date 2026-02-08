@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USP – Course Management</title>
+<style>
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background:#f4f6f9;
+  margin:0;
+  padding-bottom:60px; /* space for fixed footer */
+}
+header {
+  background:#003366;
+  color:#fff;
+  padding:14px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:relative;
+}
+header h1 { margin:0; font-size:18px; }
+.nav-links { display:flex; gap:16px; }
+.nav-links a { color:#fff; text-decoration:none; font-weight:bold; font-size:14px; }
+.nav-links a:hover { text-decoration:underline; }
+.hamburger { display:none; font-size:22px; cursor:pointer; }
+.mobile-menu {
+  display:none;
+  position:absolute;
+  top:60px;
+  right:20px;
+  background:#fff;
+  border-radius:8px;
+  box-shadow:0 10px 25px rgba(0,0,0,.2);
+  overflow:hidden;
+  z-index:1000;
+}
+.mobile-menu a {
+  display:block;
+  padding:12px 18px;
+  color:#003366;
+  text-decoration:none;
+  font-weight:600;
+  border-bottom:1px solid #eee;
+}
+.mobile-menu a:last-child { border-bottom:none; }
+.mobile-menu a:hover { background:#f0f4fa; }
+
+main { max-width:1100px; margin:25px auto; padding:0 15px; }
+h2 { margin-top:0; color:#003366; }
+.section {
+  background:#fff;
+  padding:20px;
+  margin-bottom:25px;
+  border-radius:10px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+input[type=text], input[type=date], input[type=time], input[type=number] {
+  padding:10px; width:100%; border-radius:5px; border:1px solid #ccc; font-size:15px; margin-bottom:12px;
+}
+label { font-weight:bold; display:block; margin-top:14px; }
+
+.checkbox-group { display:flex; gap:15px; margin-bottom:15px; }
+
+button { cursor:pointer; }
+button.add { background:#003366; color:#fff; border:none; padding:8px 14px; border-radius:5px; }
+button.add:hover { background:#002244; }
+button.add.loading { background:#999; cursor:not-allowed; }
+
+/* Toast */
+.toast {
+  position:fixed;
+  top:20px;
+  right:20px;
+  background:#e6fff0;
+  color:#0f5132;
+  border:1px solid #0f5132;
+  padding:14px 18px;
+  border-radius:6px;
+  box-shadow:0 5px 15px rgba(0,0,0,.2);
+  font-size:14px;
+  display:none;
+  z-index:2000;
+}
+
+/* Tables */
+table { width:100%; border-collapse:collapse; margin-top:15px; }
+th, td { padding:10px; border:1px solid #ccc; font-size:14px; }
+th { background:#003366; color:#fff; }
+.no-data { text-align:center; font-style:italic; color:#666; }
+
+/* ===== FIXED FOOTER ===== */
+footer {
+  background:#003366;
+  color:#fff;
+  text-align:center;
+  padding:15px;
+  font-size:13px;
+  position:fixed;
+  bottom:0;
+  width:100%;
+  left:0;
+}
+
+@media(max-width:768px){
+  .nav-links { display:none; }
+  .hamburger { display:block; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>USP | Course Management</h1>
+  <nav class="nav-links">
+    <a href="dashboard-lecturer.html">Dashboard</a>
+    <!-- <a href="view-submissions-lecturer.html">Submissions</a> -->
+    <a href="profile-lecturer.html">Profile</a>
+    <a href="lecturer signup and login.html" onclick="logout()">Logout</a>
+  </nav>
+  <div class="hamburger" onclick="toggleMenu()">☰</div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="dashboard-lecturer.html">Dashboard</a>
+    <!-- <a href="view-submissions-lecturer.html">Submissions</a> -->
+    <a href="profile-lecturer.html">Profile</a>
+    <a href="lecturer signup and login.html" onclick="logout()">Logout</a>
+  </div>
+</header>
+
+<main>
+
+<div class="section">
+  <h2>Add Assignment</h2>
+
+  <label>Assignment Title</label>
+  <input type="text" id="assignmentTitle">
+
+  <label>Assignment Type</label>
+  <div class="checkbox-group">
+    <label><input type="checkbox" class="submissionType" value="Document"> Document</label>
+    <label><input type="checkbox" class="submissionType" value="Image"> Image</label>
+    <label><input type="checkbox" class="submissionType" value="Text"> Text</label>
+  </div>
+
+  <label>Total Marks</label>
+  <input type="number" id="totalMarks" min="1">
+
+  <label>Start Date & Time</label>
+  <input type="date" id="startDate">
+  <input type="time" id="startTime">
+
+  <label>Deadline Date & Time</label>
+  <input type="date" id="deadlineDate">
+  <input type="time" id="deadlineTime">
+
+  <button class="add" id="publishBtn" onclick="addAssignment()">Publish Assignment</button>
+</div>
+
+<div class="section">
+  <h2>Assignments</h2>
+  <table id="assignmentTable">
+    <tr>
+      <th>Title</th>
+      <th>Type</th>
+      <th>Total Marks</th>
+      <th>Start</th>
+      <th>Deadline</th>
+    </tr>
+    <tr class="no-data">
+      <td colspan="5">No assignments added</td>
+    </tr>
+  </table>
+</div>
+
+<div class="section">
+  <h2>Student Submissions</h2>
+  <table id="submissionsTable">
+    <tr>
+      <th>Student</th>
+      <th>Matric Number</th>
+      <th>Assignment</th>
+      <!-- <th>Status</th> -->
+      <th>Action</th>
+    </tr>
+    <tr class="no-data">
+      <td colspan="5">No submissions yet</td>
+    </tr>
+  </table>
+</div>
+
+</main>
+
+<footer>
+  © 2026 Unified Submission Portal (USP). All rights reserved.
+</footer>
+
+<div id="toast" class="toast"></div>
+
+<script>
+function toggleMenu(){
+  const m=document.getElementById("mobileMenu");
+  m.style.display=m.style.display==="block"?"none":"block";
+}
+document.addEventListener("click",e=>{
+  const m=document.getElementById("mobileMenu");
+  if(!m.contains(e.target)&&!e.target.classList.contains("hamburger")) m.style.display="none";
+});
+
+const courseCode=localStorage.getItem("selectedCourse")||"Unknown";
+
+let assignments=JSON.parse(localStorage.getItem(courseCode+"_assignments"))||[];
+const assignmentTable=document.getElementById("assignmentTable");
+
+function loadAssignments(){
+  assignmentTable.innerHTML=`
+    <tr>
+      <th>Title</th><th>Type</th><th>Total Marks</th><th>Start</th><th>Deadline</th>
+    </tr>`;
+  if(!assignments.length){
+    assignmentTable.innerHTML+=`<tr class="no-data"><td colspan="5">No assignments added</td></tr>`;
+    return;
+  }
+  assignments.forEach(a=>{
+    assignmentTable.innerHTML+=`
+      <tr>
+        <td>${a.title}</td>
+        <td>${a.type.join(", ")}</td>
+        <td>${a.marks}</td>
+        <td>${a.startDate} ${a.startTime}</td>
+        <td>${a.deadlineDate} ${a.deadlineTime}</td>
+      </tr>`;
+  });
+}
+
+function addAssignment(){
+  const btn=document.getElementById("publishBtn");
+  if(btn.classList.contains("loading")) return;
+
+  const title=assignmentTitle.value.trim();
+  const type=[...document.querySelectorAll(".submissionType:checked")].map(i=>i.value);
+  const marks=totalMarks.value;
+  if(!title||!type.length||!marks||!startDate.value||!startTime.value||!deadlineDate.value||!deadlineTime.value){
+    showToast("Please complete all fields");
+    return;
+  }
+
+  btn.classList.add("loading");
+  btn.textContent="Publishing assignment...";
+
+  setTimeout(()=>{
+    assignments.push({
+      title,type,marks,
+      startDate:startDate.value,
+      startTime:startTime.value,
+      deadlineDate:deadlineDate.value,
+      deadlineTime:deadlineTime.value
+    });
+    localStorage.setItem(courseCode+"_assignments",JSON.stringify(assignments));
+    loadAssignments();
+    btn.classList.remove("loading");
+    btn.textContent="Publish Assignment";
+    // Clear inputs after publishing
+    assignmentTitle.value="";
+    totalMarks.value="";
+    startDate.value="";
+    startTime.value="";
+    deadlineDate.value="";
+    deadlineTime.value="";
+    document.querySelectorAll(".submissionType").forEach(c=>c.checked=false);
+    showToast("Assignment published successfully");
+  },1000);
+}
+
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg;
+  t.style.display="block";
+  setTimeout(()=>t.style.display="none",4000);
+}
+
+function logout(){
+  localStorage.clear();
+  location.href="lecturer signup and login.html";
+}
+
+loadAssignments();
+</script>
+</body>
+</html>

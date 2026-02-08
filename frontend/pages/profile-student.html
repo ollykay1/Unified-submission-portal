@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USP – Student Profile</title>
+
+<style>
+*{ box-sizing:border-box; }
+html,body{
+  width:100%;
+  height:100%;
+  overflow-x:hidden;
+}
+body{
+  font-family:Arial;
+  background:#f4f6f9;
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  user-select:none;
+}
+
+/* ===== HEADER ===== */
+header{
+  background:#003366;
+  color:#fff;
+  padding:14px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:relative;
+  z-index:1000;
+}
+
+header h1{
+  margin:0;
+  font-size:18px;
+  white-space:nowrap;
+}
+
+/* NAV */
+nav{
+  display:flex;
+  gap:16px;
+  align-items:center;
+}
+
+nav a{
+  color:#fff;
+  text-decoration:none;
+  font-weight:bold;
+  font-size:14px;
+}
+
+/* HAMBURGER */
+.menu-toggle{
+  display:none;
+  font-size:26px;
+  cursor:pointer;
+}
+
+/* ===== MOBILE HEADER ===== */
+@media(max-width:768px){
+  .menu-toggle{ display:block; }
+
+  nav{
+    display:none;
+    flex-direction:column;
+    align-items:flex-start; /* LEFT ALIGN */
+    background:#fff;
+    position:absolute;
+    top:100%;
+    right:12px;
+    width:220px;
+    padding:14px 16px;
+    border-radius:8px;
+    box-shadow:0 10px 25px rgba(0,0,0,.25);
+  }
+
+  nav.active{ display:flex; }
+
+  nav a{
+    color:#003366;
+    font-size:15px;
+    width:100%;
+    padding-bottom:8px;
+    border-bottom:1px solid #eee;
+  }
+}
+
+/* ===== MAIN ===== */
+main{
+  flex:1;
+  padding:20px;
+}
+
+.container{
+  max-width:1000px;
+  margin:auto;
+}
+
+.section{
+  background:#fff;
+  padding:25px;
+  margin-bottom:25px;
+  border-radius:8px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* ===== TABLE ===== */
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th, td{
+  padding:12px;
+  border:1px solid #ccc;
+  font-size:14px;
+}
+
+th{
+  background:#003366;
+  color:#fff;
+}
+
+/* ===== FOOTER ===== */
+footer{
+  background:#003366;
+  color:#fff;
+  text-align:center;
+  padding:15px;
+  font-size:13px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>USP | Student Profile</h1>
+
+  <div class="menu-toggle" id="menuToggle">☰</div>
+
+  <nav id="navMenu">
+    <a href="dashboard-student.html">Dashboard</a>
+    <a href="profile-student.html">Profile</a>
+    <a href="student signup and login.html" onclick="logout()">Logout</a>
+  </nav>
+</header>
+
+<main>
+  <div class="container">
+
+    <div class="section">
+      <h2>Profile Information</h2>
+      <table>
+        <tr><th>Full Name</th><td id="name"></td></tr>
+        <tr><th>Matric Number</th><td id="matric"></td></tr>
+        <tr><th>Email</th><td id="email"></td></tr>
+        <tr><th>Faculty</th><td id="faculty"></td></tr>
+        <tr><th>Department</th><td id="department"></td></tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>Submission History</h2>
+      <table id="historyTable">
+        <tr>
+          <th>Course</th>
+          <th>Assignment</th>
+          <th>Status</th>
+          <th>Date</th>
+        </tr>
+      </table>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  © 2026 University Submission Portal (USP). All rights reserved.
+</footer>
+
+<script>
+/* ===== MOBILE MENU (SAME AS LECTURER) ===== */
+const toggle = document.getElementById('menuToggle');
+const nav = document.getElementById('navMenu');
+
+toggle.onclick = e => {
+  e.stopPropagation();
+  nav.classList.toggle('active');
+};
+
+document.addEventListener('click', e => {
+  if(!nav.contains(e.target) && !toggle.contains(e.target)){
+    nav.classList.remove('active');
+  }
+});
+
+/* ===== STUDENT DATA ===== */
+const student = JSON.parse(
+  localStorage.getItem('studentProfile') ||
+  '{"name":"Jane Doe","matric":"CSC/21/1234","email":"jane@student.edu","faculty":"ICT","department":"Computer Science","history":[]}'
+);
+
+name.innerText = student.name;
+matric.innerText = student.matric;
+email.innerText = student.email;
+faculty.innerText = student.faculty;
+department.innerText = student.department;
+
+const historyTable = document.getElementById('historyTable');
+
+if(student.history.length === 0){
+  historyTable.innerHTML += `<tr><td colspan="4">No submissions yet</td></tr>`;
+}else{
+  student.history.forEach(h=>{
+    historyTable.innerHTML += `
+      <tr>
+        <td>${h.course}</td>
+        <td>${h.assignment}</td>
+        <td>${h.status}</td>
+        <td>${h.date}</td>
+      </tr>
+    `;
+  });
+}
+
+function logout(){
+  window.location.href='student signup and login.html';
+}
+
+/* COPY PROTECTION */
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  if(e.ctrlKey && ['c','x','u','s'].includes(e.key.toLowerCase())) e.preventDefault();
+});
+</script>
+
+</body>
+</html>

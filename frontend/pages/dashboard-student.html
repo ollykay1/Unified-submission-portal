@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USP – Student Dashboard</title>
+<style>
+/* ===== BASE ===== */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background:#f4f6f9;
+  margin:0;
+  user-select:none;
+}
+input, textarea, select { user-select:text; }
+
+/* ===== HEADER / NAV ===== */
+header {
+  background:#003366;
+  color:#fff;
+  padding:14px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:relative;
+}
+header h1 { margin:0; font-size:18px; }
+.nav-links { display:flex; gap:16px; }
+.nav-links a { color:#fff; text-decoration:none; font-weight:bold; font-size:14px; }
+.nav-links a:hover { text-decoration:underline; }
+
+/* ===== HAMBURGER ===== */
+.hamburger { display:none; font-size:22px; cursor:pointer; }
+.mobile-menu {
+  display:none;
+  position:absolute;
+  top:60px;
+  right:20px;
+  background:#fff;
+  border-radius:8px;
+  box-shadow:0 10px 25px rgba(0,0,0,.2);
+  overflow:hidden;
+  z-index:1000;
+}
+.mobile-menu a {
+  display:block;
+  padding:12px 18px;
+  color:#003366;
+  text-decoration:none;
+  font-weight:600;
+  border-bottom:1px solid #eee;
+}
+.mobile-menu a:last-child { border-bottom:none; }
+.mobile-menu a:hover { background:#f0f4fa; }
+
+/* ===== MAIN ===== */
+main { max-width:1200px; margin:25px auto; padding:0 15px; }
+h2 { margin-top:0; color:#003366; }
+
+/* ===== SECTIONS ===== */
+.section {
+  background:#fff;
+  padding:20px;
+  margin-bottom:25px;
+  border-radius:10px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* ===== SELECT BOXES ===== */
+.select-boxes {
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:15px;
+}
+select {
+  padding:12px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  width:100%;
+  font-size:16px;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ===== TABLES ===== */
+.table-container {
+  width:100%;
+  overflow-x:hidden; /* hide scrollbars */
+}
+table {
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
+  table-layout:fixed; /* compress columns */
+}
+th, td {
+  padding:8px 6px;
+  border:1px solid #ccc;
+  text-align:left;
+  font-size:14px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+th {
+  background:#003366;
+  color:#fff;
+  font-weight:bold;
+}
+.no-data { text-align:center; font-style:italic; color:#666; }
+
+/* ===== COUNTDOWN COLORS ===== */
+.countdown-open { color:green; font-weight:bold; }
+.countdown-closed { color:red; font-weight:bold; }
+
+/* ===== BUTTONS ===== */
+button.action {
+  background:#003366;
+  color:#fff;
+  border:none;
+  padding:5px 8px;
+  border-radius:5px;
+  cursor:pointer;
+  font-size:13px;
+  transition:.3s;
+}
+button.action:hover:not(:disabled) { background:#002244; }
+button.action:disabled {
+  background:#ccc;
+  cursor:not-allowed;
+}
+
+.view-all {
+  float:right;
+  font-size:12px;
+  background:#eee;
+  color:#003366;
+  border:none;
+  padding:5px 8px;
+  border-radius:5px;
+  cursor:pointer;
+}
+.view-all:hover { background:#ddd; }
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){ .select-boxes { grid-template-columns:1fr; } }
+@media(max-width:768px){ 
+  .nav-links { display:none; } 
+  .hamburger { display:block; } 
+  table, th, td { font-size:13px; padding:6px 4px; }
+  th, td { white-space:normal; word-break:break-word; }
+}
+@media(max-width:600px){ 
+  th, td { font-size:12px; padding:5px 3px; }
+  button.action, .view-all { font-size:11px; padding:4px 5px; }
+}
+@media(max-width:480px){
+  header h1 { font-size:16px; } 
+  .mobile-menu { right:10px; top:50px; }
+  table, th, td { font-size:12px; padding:4px 3px; }
+  th, td { white-space:normal; word-break:break-word; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>USP | Student Dashboard</h1>
+  <nav class="nav-links">
+    <a href="view-submissions-student.html">Submissions</a>
+    <a href="profile-student.html">Profile</a>
+    <a href="student signup and login.html" onclick="logout()">Logout</a>
+  </nav>
+  <div class="hamburger" onclick="toggleMenu()">☰</div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="view-submissions-student.html">Submissions</a>
+    <a href="profile-student.html">Profile</a>
+    <a href="student signup and login.html" onclick="logout()">Logout</a>
+  </div>
+</header>
+
+<main>
+<!-- ACADEMIC SELECTION -->
+<div class="section">
+  <h2>Academic Selection</h2>
+  <div class="select-boxes">
+    <select id="facultySelect">
+      <option value="">Select Faculty</option>
+    </select>
+    <select id="departmentSelect" disabled>
+      <option value="">Select Department</option>
+    </select>
+    <select id="levelSelect" disabled>
+      <option value="">Select Level</option>
+    </select>
+  </div>
+</div>
+
+<!-- COURSES -->
+<div class="section">
+  <h2>Courses</h2>
+  <div class="table-container">
+    <table id="coursesTable">
+      <tr>
+        <th>Course Code</th>
+        <th>Assignment Title</th>
+        <th>Status</th>
+        <th>Deadline</th>
+        <th>Availability</th>
+        <th>Action</th>
+      </tr>
+      <tr class="no-data">
+        <td colspan="6">Select faculty, department and level</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- SUBMISSION HISTORY -->
+<div class="section">
+  <h2>Submission History</h2>
+  <div class="table-container">
+    <table id="historyTable">
+      <tr>
+        <th>Course</th>
+        <th>Assignment</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+      <tr class="no-data">
+        <td colspan="4">No submissions yet</td>
+      </tr>
+    </table>
+  </div>
+</div>
+</main>
+
+<script src="faculty.js"></script>
+<script>
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("keydown", e => {
+  if(e.ctrlKey && ["c","x","a","u"].includes(e.key.toLowerCase())) e.preventDefault();
+});
+
+function toggleMenu(){
+  const menu = document.getElementById("mobileMenu");
+  menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+document.addEventListener("click", e => {
+  const menu = document.getElementById("mobileMenu");
+  if(!menu.contains(e.target) && !e.target.classList.contains('hamburger')) menu.style.display="none";
+});
+
+const facultySelect = document.getElementById("facultySelect");
+const departmentSelect = document.getElementById("departmentSelect");
+const levelSelect = document.getElementById("levelSelect");
+const coursesTable = document.getElementById("coursesTable");
+
+FacultyService.getFaculties().forEach(fac => {
+  facultySelect.innerHTML += `<option value="${fac}">${fac}</option>`;
+});
+
+facultySelect.onchange = () => {
+  departmentSelect.innerHTML = '<option value="">Select Department</option>';
+  levelSelect.innerHTML = '<option value="">Select Level</option>';
+  departmentSelect.disabled = true;
+  levelSelect.disabled = true;
+  clearCourses();
+  if (!facultySelect.value) return;
+  FacultyService.getDepartments(facultySelect.value).forEach(dep => {
+    departmentSelect.innerHTML += `<option value="${dep}">${dep}</option>`;
+  });
+  departmentSelect.disabled = false;
+}
+
+departmentSelect.onchange = () => {
+  levelSelect.innerHTML = '<option value="">Select Level</option>';
+  levelSelect.disabled = true;
+  clearCourses();
+  if (!departmentSelect.value) return;
+  FacultyService.getLevels(facultySelect.value, departmentSelect.value)
+    .forEach(lvl => levelSelect.innerHTML += `<option value="${lvl}">${lvl}</option>`);
+  levelSelect.disabled = false;
+}
+
+levelSelect.onchange = showCourses;
+
+// ===== REAL-TIME countdown with color ======
+let countdownInterval;
+
+function showCourses() {
+  renderCourses(); // initial render
+  if(countdownInterval) clearInterval(countdownInterval);
+  countdownInterval = setInterval(renderCourses, 1000); // every second
+}
+
+function renderCourses() {
+  coursesTable.innerHTML = `
+    <tr>
+      <th>Course Code</th>
+      <th>Assignment Title</th>
+      <th>Status</th>
+      <th>Deadline</th>
+      <th>Availability</th>
+      <th>Action</th>
+    </tr>`;
+
+  const courses = FacultyService.getCourses(facultySelect.value, departmentSelect.value, levelSelect.value);
+  if(!courses.length){
+    coursesTable.innerHTML += `<tr class="no-data"><td colspan="6">No courses available</td></tr>`;
+    return;
+  }
+
+  courses.forEach(code => {
+    const assignments = JSON.parse(localStorage.getItem(code+"_assignments")) || [];
+    const assignment = assignments[0] || null;
+    let status = assignment ? "Available" : "No Assignment";
+    let countdown = "-";
+    let openDisabled = false;
+    let countdownClass = "countdown-open";
+
+    if(assignment){
+      const endTime = new Date(assignment.deadlineDate+" "+assignment.deadlineTime).getTime();
+      const now = new Date().getTime();
+      const diff = endTime - now;
+
+      if(diff > 0){
+        const days = Math.floor(diff / (1000*60*60*24));
+        const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+        const minutes = Math.floor((diff % (1000*60*60)) / (1000*60));
+        const seconds = Math.floor((diff % (1000*60)) / 1000);
+        countdown = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        countdownClass = "countdown-open";
+      } else {
+        countdown = "Closed";
+        openDisabled = true;
+        status = "Closed";
+        countdownClass = "countdown-closed";
+      }
+    } else {
+      openDisabled = true;
+      countdownClass = "countdown-closed";
+    }
+
+    coursesTable.innerHTML += `
+      <tr>
+        <td>${code}</td>
+        <td>${assignment ? assignment.title : "-"}</td>
+        <td>${status}</td>
+        <td class="${countdownClass}">${countdown}</td>
+        <td>${assignment && !openDisabled ? "Open" : "-"}</td>
+        <td><button class="action" onclick="openCourse('${code}')" ${openDisabled ? "disabled" : ""}>Open</button></td>
+      </tr>`;
+  });
+}
+
+// ===== Other functions remain unchanged =====
+function clearCourses() {
+  coursesTable.innerHTML = `
+    <tr>
+      <th>Course Code</th>
+      <th>Assignment Title</th>
+      <th>Status</th>
+      <th>Deadline</th>
+      <th>Availability</th>
+      <th>Action</th>
+    </tr>
+    <tr class="no-data">
+      <td colspan="6">Select faculty, department and level</td>
+    </tr>`;
+}
+
+function openCourse(code){
+  localStorage.setItem("selectedCourse", code);
+  window.location.href="course-student.html";
+}
+
+function loadSubmissionHistory(){
+  const table = document.getElementById("historyTable");
+  const submissions = JSON.parse(localStorage.getItem("submissions")) || [];
+  table.innerHTML = `
+    <tr>
+      <th>Course</th>
+      <th>Assignment</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>`;
+  if(!submissions.length){
+    table.innerHTML += `<tr class="no-data"><td colspan="4">No submissions yet</td></tr>`;
+    return;
+  }
+  submissions.slice(-5).reverse().forEach(s => {
+    table.innerHTML += `
+      <tr>
+        <td>${s.course}</td>
+        <td>${s.assignment}</td>
+        <td>${s.status}</td>
+        <td><button class="action" onclick="viewSubmission('${s.course}','${s.assignment}')">View</button></td>
+      </tr>`;
+  });
+}
+
+function viewSubmission(course, assignment){
+  localStorage.setItem("selectedCourse", course);
+  localStorage.setItem("selectedAssignment", assignment);
+  window.location.href="view-submission-student.html";
+}
+
+function logout(){
+  localStorage.clear();
+  window.location.href="student signup and login.html";
+}
+
+loadSubmissionHistory();
+</script>
+</body>
+</html>

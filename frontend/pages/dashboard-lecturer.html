@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USP – Lecturer Dashboard</title>
+
+<style>
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background:#f4f6f9;
+  margin:0;
+  user-select:none;
+}
+input, textarea, select { user-select:text; }
+
+header {
+  background:#003366;
+  color:#fff;
+  padding:14px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+header h1 { margin:0; font-size:18px; }
+.nav-links { display:flex; gap:16px; }
+.nav-links a { color:#fff; text-decoration:none; font-weight:bold; font-size:14px; }
+.nav-links a:hover { text-decoration:underline; }
+
+.hamburger { display:none; font-size:22px; cursor:pointer; }
+.mobile-menu {
+  display:none;
+  position:absolute;
+  top:60px;
+  right:20px;
+  background:#fff;
+  border-radius:8px;
+  box-shadow:0 10px 25px rgba(0,0,0,.2);
+  overflow:hidden;
+  z-index:1000;
+}
+.mobile-menu a {
+  display:block;
+  padding:12px 18px;
+  color:#003366;
+  text-decoration:none;
+  font-weight:600;
+  border-bottom:1px solid #eee;
+}
+.mobile-menu a:last-child { border-bottom:none; }
+.mobile-menu a:hover { background:#f0f4fa; }
+
+main { max-width:1100px; margin:25px auto; padding:0 15px; }
+h2 { margin-top:0; color:#003366; }
+.section { background:#fff; padding:20px; margin-bottom:25px; border-radius:10px; box-shadow:0 5px 15px rgba(0,0,0,0.1); }
+
+input[type=text] {
+  padding:10px;
+  width:100%;
+  border-radius:5px;
+  border:1px solid #ccc;
+  font-size:15px;
+  margin-bottom:10px;
+}
+button { cursor:pointer; }
+button.add { background:#003366; color:#fff; border:none; padding:7px 12px; border-radius:5px; transition:.3s; }
+button.add:hover { background:#002244; }
+button.action { background:#003366; color:#fff; border:none; padding:7px 12px; border-radius:5px; cursor:pointer; transition:.3s; }
+button.action:hover { background:#002244; }
+
+table { width:100%; border-collapse:collapse; margin-top:15px; }
+th, td { padding:10px; border:1px solid #ccc; text-align:left; font-size:14px; }
+th { background:#003366; color:#fff; }
+.no-data { text-align:center; font-style:italic; color:#666; }
+
+@media(max-width:900px){ .section { padding:15px; } }
+@media(max-width:768px){
+  .nav-links { display:none; }
+  .hamburger { display:block; }
+  table, th, td { font-size:13px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>USP | Lecturer Dashboard</h1>
+  <nav class="nav-links">
+    <!-- <a href="view-submissions-lecturer.html">Submissions</a> -->
+    <a href="profile-lecturer.html">Profile</a>
+    <a href="preloader.html" onclick="logout()">Logout</a>
+  </nav>
+  <div class="hamburger" onclick="toggleMenu()">☰</div>
+  <div class="mobile-menu" id="mobileMenu">
+    <!-- <a href="view-submissions-lecturer.html">Submissions</a> -->
+    <a href="profile-lecturer.html">Profile</a>
+    <a href="preloader.html" onclick="logout()">Logout</a>
+  </div>
+</header>
+
+<main>
+  <!-- ENTER COURSE CODE -->
+  <div class="section">
+    <h2>Access Course</h2>
+    <input type="text" id="courseCodeInput" placeholder="Enter Course Code (UCK)">
+    <button class="add" onclick="addCourse()">Enter Course</button>
+  </div>
+
+  <!-- MY COURSES -->
+  <div class="section">
+    <h2>My Courses</h2>
+    <table id="coursesTable">
+      <tr>
+        <th>Course Code</th>
+        <th>Action</th>
+      </tr>
+      <tr class="no-data">
+        <td colspan="2">No courses available</td>
+      </tr>
+    </table>
+  </div>
+</main>
+
+<script>
+/* ===== NAV MENU ===== */
+function toggleMenu(){
+  const menu = document.getElementById("mobileMenu");
+  menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+
+/* ===== LECTURER COURSES ===== */
+let lecturerCourses = JSON.parse(localStorage.getItem("lecturerCourses")) || [];
+const coursesTable = document.getElementById("coursesTable");
+
+function loadCourses() {
+  coursesTable.innerHTML = `
+    <tr>
+      <th>Course Code</th>
+      <th>Action</th>
+    </tr>
+  `;
+  if(!lecturerCourses.length){
+    coursesTable.innerHTML += `<tr class="no-data"><td colspan="2">No courses available</td></tr>`;
+    return;
+  }
+  lecturerCourses.forEach(code => {
+    coursesTable.innerHTML += `
+      <tr>
+        <td>${code}</td>
+        <td><button class="action" onclick="manageCourse('${code}')">Manage Course</button></td>
+      </tr>
+    `;
+  });
+}
+
+// Add course code
+function addCourse() {
+  const input = document.getElementById("courseCodeInput");
+  const code = input.value.trim();
+  if(!code) { alert("Enter a course code"); return; }
+  if(lecturerCourses.includes(code)) { alert("Course already added"); return; }
+  lecturerCourses.push(code);
+  localStorage.setItem("lecturerCourses", JSON.stringify(lecturerCourses));
+  input.value = "";
+  loadCourses();
+}
+
+// Manage course -> go to courses-lecturer.html
+function manageCourse(code) {
+  localStorage.setItem("selectedCourse", code);
+  window.location.href = "course-lecturer.html";
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = "preloader.html";
+}
+
+// Initial load
+loadCourses();
+</script>
+
+</body>
+</html>

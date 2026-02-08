@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USP - Unified Submission Portal</title>
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    background: #e8f4f8;
+    min-height: 100vh;
+}
+
+/* ============================================
+   PRELOADER
+   ============================================ */
+.preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0a1628, #1a3a52, #0d2137);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.preloader.hide {
+    animation: preloaderFadeOut 1s forwards;
+}
+
+@keyframes preloaderFadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; visibility: hidden; }
+}
+
+/* Animated Background */
+.preloader-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.preloader-bg span {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    animation: floatBubble 15s infinite;
+}
+
+.preloader-bg span:nth-child(1) { left: 10%; width: 40px; height: 40px; animation-delay: 0s; }
+.preloader-bg span:nth-child(2) { left: 25%; width: 20px; height: 20px; animation-delay: 2s; animation-duration: 12s; }
+.preloader-bg span:nth-child(3) { left: 40%; width: 60px; height: 60px; animation-delay: 4s; }
+.preloader-bg span:nth-child(4) { left: 55%; width: 30px; height: 30px; animation-delay: 1s; animation-duration: 18s; }
+.preloader-bg span:nth-child(5) { left: 70%; width: 50px; height: 50px; animation-delay: 3s; }
+.preloader-bg span:nth-child(6) { left: 85%; width: 25px; height: 25px; animation-delay: 5s; animation-duration: 14s; }
+
+@keyframes floatBubble {
+    0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% { opacity: 0.5; }
+    90% { opacity: 0.5; }
+    100% {
+        transform: translateY(-100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Logo Container */
+.logo-container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Main Logo */
+.main-logo {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(145deg, #ffffff, #e6e6e6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 
+        0 20px 50px rgba(0, 0, 0, 0.4),
+        0 0 30px rgba(79, 195, 247, 0.3);
+    animation: logoPulse 2s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+    0%, 100% { 
+        transform: scale(1); 
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(79, 195, 247, 0.3);
+    }
+    50% { 
+        transform: scale(1.05); 
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 50px rgba(79, 195, 247, 0.5);
+    }
+}
+
+/* Spinning Rings */
+.ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 3px solid transparent;
+}
+
+.ring-1 {
+    width: 150px;
+    height: 150px;
+    border-top-color: #4fc3f7;
+    border-right-color: #4fc3f7;
+    animation: spinRing 2s linear infinite;
+}
+
+.ring-2 {
+    width: 180px;
+    height: 180px;
+    border-bottom-color: #81d4fa;
+    border-left-color: #81d4fa;
+    animation: spinRing 3s linear infinite reverse;
+}
+
+.ring-3 {
+    width: 210px;
+    height: 210px;
+    border-top-color: rgba(255, 255, 255, 0.2);
+    animation: spinRing 4s linear infinite;
+}
+
+@keyframes spinRing {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.logo-text {
+    font-size: 38px;
+    font-weight: 800;
+    color: #1a3a52;
+    letter-spacing: -1px;
+    z-index: 1;
+}
+
+/* Portal Info */
+.portal-info {
+    margin-top: 40px;
+    text-align: center;
+    z-index: 1;
+}
+
+.portal-info h1 {
+    color: #fff;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+    animation: textFadeIn 1s ease 0.5s both;
+}
+
+.portal-info p {
+    color: #81d4fa;
+    font-size: 13px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    animation: textFadeIn 1s ease 0.8s both;
+}
+
+@keyframes textFadeIn {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Tagline */
+.tagline {
+    margin-top: 15px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    font-style: italic;
+    animation: textFadeIn 1s ease 1s both;
+}
+
+/* Loading Section */
+.loading-section {
+    margin-top: 50px;
+    text-align: center;
+    z-index: 1;
+    animation: textFadeIn 1s ease 1.2s both;
+}
+
+.loading-bar-bg {
+    width: 250px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.loading-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #4fc3f7, #81d4fa, #b3e5fc, #81d4fa, #4fc3f7);
+    background-size: 200% 100%;
+    border-radius: 10px;
+    animation: loadingShimmer 1.5s linear infinite;
+}
+
+@keyframes loadingShimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.loading-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+}
+
+.loading-percent {
+    color: #4fc3f7;
+    font-weight: 700;
+    font-size: 18px;
+    min-width: 50px;
+}
+
+/* Loading Dots */
+.loading-dots {
+    display: flex;
+    gap: 5px;
+}
+
+.loading-dots span {
+    width: 6px;
+    height: 6px;
+    background: #4fc3f7;
+    border-radius: 50%;
+    animation: dotPulse 1.4s ease-in-out infinite;
+}
+
+.loading-dots span:nth-child(1) { animation-delay: 0s; }
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dotPulse {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+    40% { transform: scale(1); opacity: 1; }
+}
+
+/* Feature Icons */
+.feature-icons {
+    display: flex;
+    gap: 50px;
+    margin-top: 60px;
+    z-index: 1;
+}
+
+.feature-icon {
+    text-align: center;
+    opacity: 0;
+    animation: featureFadeIn 0.6s ease forwards;
+}
+
+.feature-icon:nth-child(1) { animation-delay: 1.5s; }
+.feature-icon:nth-child(2) { animation-delay: 1.7s; }
+.feature-icon:nth-child(3) { animation-delay: 1.9s; }
+
+@keyframes featureFadeIn {
+    0% { opacity: 0; transform: translateY(30px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.feature-icon .icon {
+    width: 55px;
+    height: 55px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin: 0 auto 10px;
+    transition: all 0.3s;
+}
+
+.feature-icon:hover .icon {
+    background: rgba(79, 195, 247, 0.2);
+    border-color: #4fc3f7;
+    transform: translateY(-5px);
+}
+
+.feature-icon span {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+}
+
+/* ============================================
+   MAIN CONTENT
+   ============================================ */
+.main-content {
+    display: none;
+    min-height: 100vh;
+    padding: 30px 20px;
+    background: linear-gradient(180deg, #e8f4f8 0%, #f5f9fb 100%);
+}
+
+.main-content.show {
+    display: block;
+    animation: contentFadeIn 0.8s ease;
+}
+
+@keyframes contentFadeIn {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Page Header */
+.page-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.brand-logo {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(145deg, #1a3a52, #2d5a7b);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 800;
+    box-shadow: 0 4px 15px rgba(26, 58, 82, 0.3);
+}
+
+.brand h1 {
+    font-size: 24px;
+    color: #1a3a52;
+    font-weight: 700;
+}
+
+.page-header > p {
+    color: #666;
+    font-size: 14px;
+}
+
+/* Auth Container */
+.auth-container {
+    max-width: 420px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+/* Section Header */
+.section-header {
+    background: linear-gradient(145deg, #1a3a52, #2d5a7b);
+    padding: 20px;
+    text-align: center;
+    color: #fff;
+}
+
+.section-header .icon {
+    font-size: 35px;
+    margin-bottom: 8px;
+}
+
+.section-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.section-header p {
+    font-size: 12px;
+    color: #a8d5e5;
+}
+
+/* Auth Tabs */
+.auth-tabs {
+    display: flex;
+    background: #f5f7f9;
+    border-bottom: 1px solid #eee;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #888;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.auth-tab:hover {
+    color: #1a3a52;
+    background: #eef3f6;
+}
+
+.auth-tab.active {
+    color: #1a3a52;
+    font-weight: 600;
+    background: #fff;
+}
+
+.auth-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 25%;
+    width: 50%;
+    height: 3px;
+    background: #2d5a7b;
+    border-radius: 3px 3px 0 0;
+}
+
+/* Form Container */
+.form-container {
+    padding: 25px;
+}
+
+/* Auth Forms */
+.auth-form {
+    display: none;
+}
+
+.auth-form.active {
+    display: block;
+    animation: formSlide 0.4s ease;
+}
+
+@keyframes formSlide {
+    0% { opacity: 0; transform: translateX(20px); }
+    100% { opacity: 1; transform: translateX(0); }
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-group label .required {
+    color: #e53935;
+}
+
+.input-box {
+    position: relative;
+}
+
+.input-box .icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    font-size: 15px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 12px 14px 12px 42px;
+    border: 1.5px solid #e0e4e8;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #333;
+    background: #fafbfc;
+    transition: all 0.3s;
+}
+
+.form-group select {
+    padding-left: 14px;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #2d5a7b;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(45, 90, 123, 0.1);
+}
+
+.toggle-pass {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #999;
+    font-size: 14px;
+    user-select: none;
+}
+
+.toggle-pass:hover {
+    color: #555;
+}
+
+.form-row {
+    display: flex;
+    gap: 12px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+/* Form Options */
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+
+.form-options label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    color: #555;
+}
+
+.form-options input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: #2d5a7b;
+}
+
+.form-options a {
+    color: #2d5a7b;
+    text-decoration: none;
+}
+
+.form-options a:hover {
+    text-decoration: underline;
+}
+
+/* Submit Button */
+.submit-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(145deg, #1a3a52, #2d5a7b);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.submit-btn:hover {
+    background: linear-gradient(145deg, #15303f, #264d69);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(26, 58, 82, 0.3);
+}
+
+.submit-btn:active {
+    transform: translateY(0);
+}
+
+/* Switch Text */
+.switch-text {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 13px;
+    color: #666;
+}
+
+.switch-text a {
+    color: #2d5a7b;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.switch-text a:hover {
+    text-decoration: underline;
+}
+
+/* Access Section */
+.access-section {
+    padding: 20px 25px 25px;
+    border-top: 1px solid #eee;
+    background: #fafbfc;
+}
+
+.access-section p {
+    text-align: center;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 12px;
+}
+
+.access-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.access-btn {
+    flex: 1;
+    padding: 12px;
+    background: #fff;
+    border: 1.5px solid #e0e4e8;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.access-btn:hover {
+    border-color: #2d5a7b;
+    color: #1a3a52;
+    background: #f0f7fa;
+}
+
+.access-btn .icon {
+    font-size: 16px;
+}
+
+/* Toast */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    padding: 14px 25px;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s;
+    z-index: 10000;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.toast.success {
+    background: #2e7d32;
+}
+
+.toast.error {
+    background: #c62828;
+}
+
+.toast.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Footer */
+.page-footer {
+    text-align: center;
+    padding: 25px;
+    color: #999;
+    font-size: 12px;
+}
+
+/* ============================================
+   MODAL
+   ============================================ */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+    padding: 20px;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-box {
+    background: #fff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 400px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    animation: modalSlide 0.3s ease;
+}
+
+@keyframes modalSlide {
+    0% { opacity: 0; transform: scale(0.9) translateY(-20px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-header {
+    padding: 25px;
+    text-align: center;
+    color: #fff;
+}
+
+.modal-header.lecturer {
+    background: linear-gradient(145deg, #1565c0, #1976d2);
+}
+
+.modal-header.admin {
+    background: linear-gradient(145deg, #5d4037, #6d4c41);
+}
+
+.modal-header .icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.modal-header h3 {
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+.modal-header p {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* Modal Tabs */
+.modal-tabs {
+    display: flex;
+    background: #f5f7f9;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-tab {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 13px;
+    color: #888;
+    transition: all 0.3s;
+}
+
+.modal-tab:hover {
+    color: #333;
+}
+
+.modal-tab.active {
+    color: #1565c0;
+    font-weight: 600;
+    background: #fff;
+    border-bottom: 2px solid #1565c0;
+}
+
+.modal-body {
+    padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.modal-form {
+    display: none;
+}
+
+.modal-form.active {
+    display: block;
+}
+
+.modal-footer {
+    padding: 15px 20px 20px;
+    display: flex;
+    gap: 10px;
+    background: #fafbfc;
+    border-top: 1px solid #eee;
+}
+
+.modal-footer button {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: linear-gradient(145deg, #1565c0, #1976d2);
+    color: #fff;
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(145deg, #0d47a1, #1565c0);
+}
+
+.btn-primary.admin {
+    background: linear-gradient(145deg, #5d4037, #6d4c41);
+}
+
+.btn-primary.admin:hover {
+    background: linear-gradient(145deg, #4e342e, #5d4037);
+}
+
+.btn-cancel {
+    background: #fff;
+    color: #666;
+    border: 1.5px solid #ddd;
+}
+
+.btn-cancel:hover {
+    background: #f5f5f5;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .auth-container {
+        margin: 0 5px;
+        border-radius: 12px;
+    }
+    
+    .feature-icons {
+        gap: 30px;
+    }
+    
+    .feature-icon .icon {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+    
+    .portal-info h1 {
+        font-size: 20px;
+    }
+    
+    .main-logo {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .ring-1 { width: 130px; height: 130px; }
+    .ring-2 { width: 155px; height: 155px; }
+    .ring-3 { width: 180px; height: 180px; }
+    
+    .logo-text {
+        font-size: 30px;
+    }
+    
+    .access-buttons {
+        flex-direction: column;
+    }
+}
+</style>
+</head>
+<body>
+
+<!-- ====================================================
+     PRELOADER
+     ==================================================== -->
+<div class="preloader" id="preloader">
+    <!-- Animated Background -->
+    <div class="preloader-bg">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    
+    <!-- Logo Container -->
+    <div class="logo-container">
+        <div class="main-logo">
+            <div class="ring ring-1"></div>
+            <div class="ring ring-2"></div>
+            <div class="ring ring-3"></div>
+            <span class="logo-text">USP</span>
+        </div>
+        
+        <!-- Portal Info -->
+        <div class="portal-info">
+            <h1>Unified Submission Portal</h1>
+            <p>Academic Excellence</p>
+            <div class="tagline">"Submit Smart, Succeed Better"</div>
+        </div>
+        
+        <!-- Loading Section -->
+        <div class="loading-section">
+            <div class="loading-bar-bg">
+                <div class="loading-bar-fill" id="loadingBar"></div>
+            </div>
+            <div class="loading-info">
+                <span>Preparing your experience</span>
+                <div class="loading-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <span class="loading-percent" id="loadingPercent">0%</span>
+            </div>
+        </div>
+        
+        <!-- Feature Icons -->
+        <div class="feature-icons">
+            <div class="feature-icon">
+                <div class="icon">📤</div>
+                <span>Easy Submit</span>
+            </div>
+            <div class="feature-icon">
+                <div class="icon">✅</div>
+                <span>Quick Grade</span>
+            </div>
+            <div class="feature-icon">
+                <div class="icon">📊</div>
+                <span>Track Progress</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ====================================================
+     MAIN CONTENT
+     ==================================================== -->
+<div class="main-content" id="mainContent">
+    
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="brand">
+            <div class="brand-logo">USP</div>
+            <h1>Unified Submission Portal</h1>
+        </div>
+        <p>Welcome! Please sign in to continue</p>
+    </div>
+    
+    <!-- Auth Container -->
+    <div class="auth-container">
+        
+        <!-- Section Header - Student -->
+        <div class="section-header">
+            <div class="icon">👨‍🎓</div>
+            <h2>Student Portal</h2>
+            <p>Access your academic dashboard</p>
+        </div>
+        
+        <!-- Auth Tabs -->
+        <div class="auth-tabs">
+            <div class="auth-tab active" onclick="switchStudentAuth('login')">Login</div>
+            <div class="auth-tab" onclick="switchStudentAuth('signup')">Sign Up</div>
+        </div>
+        
+        <!-- Form Container -->
+        <div class="form-container">
+            
+            <!-- Student Login Form -->
+            <div class="auth-form active" id="studentLoginForm">
+                <div class="form-group">
+                    <label>Matric Number <span class="required">*</span></label>
+                    <div class="input-box">
+                        <span class="icon">🎓</span>
+                        <input type="text" id="sLoginMatric" placeholder="e.g. USP/2021/001">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Password <span class="required">*</span></label>
+                    <div class="input-box">
+                        <span class="icon">🔒</span>
+                        <input type="password" id="sLoginPass" placeholder="Enter password">
+                        <span class="toggle-pass" onclick="togglePassword('sLoginPass')">👁</span>
+                    </div>
+                </div>
+                
+                <div class="form-options">
+                    <label>
+                        <input type="checkbox"> Remember me
+                    </label>
+                    <a href="#">Forgot Password?</a>
+                </div>
+                
+                <button class="submit-btn" onclick="studentLogin()">Login</button>
+                
+                <p class="switch-text">
+                    Don't have an account? <a onclick="switchStudentAuth('signup')">Sign Up</a>
+                </p>
+            </div>
+            
+            <!-- Student Signup Form -->
+            <div class="auth-form" id="studentSignupForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name <span class="required">*</span></label>
+                        <div class="input-box">
+                            <span class="icon">👤</span>
+                            <input type="text" id="sFirstName" placeholder="First name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name <span class="required">*</span></label>
+                        <div class="input-box">
+                            <span class="icon">👤</span>
+                            <input type="text" id="sLastName" placeholder="Last name">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Matric Number <span class="required">*</span></label>
+                    <div class="input-box">
+                        <span class="icon">🎓</span>
+                        <input type="text" id="sMatric" placeholder="e.g. USP/2021/001">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Email <span class="required">*</span></label>
+                    <div class="input-box">
+                        <span class="icon">📧</span>
+                        <input type="email" id="sEmail" placeholder="Email address">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Faculty <span class="required">*</span></label>
+                    <select id="sFaculty" onchange="loadDepartments('sFaculty', 'sDept')">
+                        <option value="">Select Faculty</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Department <span class="required">*</span></label>
+                    <select id="sDept" disabled>
+                        <option value="">Select Department</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Level <span class="required">*</span></label>
+                    <select id="sLevel">
+                        <option value="">Select Level</option>
+                        <option value="100">100 Level</option>
+                        <option value="200">200 Level</option>
+                        <option value="300">300 Level</option>
+                        <option value="400">400 Level</option>
+                        <option value="500">500 Level</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Password <span class="required">*</span></label>
+                    <div class="input-box">
+                        <span class="icon">🔒</span>
+                        <input type="password" id="sPassword" placeholder="Create password">
+                        <span class="toggle-pass" onclick="togglePassword('sPassword')">👁</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Confirm Password <span class="required">*</span></label>
+                    <div class="input-box">
+                        <span class="icon">🔒</span>
+                        <input type="password" id="sConfirmPass" placeholder="Confirm password">
+                    </div>
+                </div>
+                
+                <button class="submit-btn" onclick="studentSignup()">Create Account</button>
+                
+                <p class="switch-text">
+                    Already have an account? <a onclick="switchStudentAuth('login')">Login</a>
+                </p>
+            </div>
+            
+        </div>
+        
+        <!-- Staff Access Section -->
+        <div class="access-section">
+            <p>Staff and Administrator Access</p>
+            <div class="access-buttons">
+                <button class="access-btn" onclick="openLecturerModal()">
+                    <span class="icon">👨‍🏫</span>
+                    <span>Lecturer Portal</span>
+                </button>
+                <button class="access-btn" onclick="openAdminModal()">
+                    <span class="icon">⚙️</span>
+                    <span>Admin Portal</span>
+                </button>
+            </div>
+        </div>
+        
+    </div>
+    
+    <!-- Footer -->
+    <div class="page-footer">
+        <p>© 2025 Unified Submission Portal. All rights reserved.</p>
+    </div>
+    
+</div>
+
+
+<!-- ====================================================
+     LECTURER MODAL
+     ==================================================== -->
+<div class="modal" id="lecturerModal">
+    <div class="modal-box">
+        <div class="modal-header lecturer">
+            <div class="icon">👨‍🏫</div>
+            <h3>Lecturer Portal</h3>
+            <p>Access your teaching dashboard</p>
+        </div>
+        
+        <div class="modal-tabs">
+            <div class="modal-tab active" onclick="switchLecturerAuth('login')">Login</div>
+            <div class="modal-tab" onclick="switchLecturerAuth('signup')">Sign Up</div>
+        </div>
+        
+        <div class="modal-body">
+            
+            <!-- Lecturer Login -->
+            <div class="modal-form active" id="lecturerLoginForm">
+                <div class="form-group">
+                    <label>Staff ID <span class="required">*</span></label>
+                    <div class="input-box">
+                        <span class="icon">🪪</span>
+                        <input type="text" id="lLoginStaff" placeholder="e.g. STAFF/001">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Password <span class="required">*</span></label>
+                    <div class="input-box">
+                        <span class="icon">🔒</span>
+                        <input type="password" id="lLoginPass" placeholder="Enter password">
+                        <span class="toggle-pass" onclick="togglePassword('lLoginPass')">👁</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Lecturer Signup -->
+            <div class="modal-form" id="lecturerSignupForm">
+                <div class="form-group">
+                    <label>Full Name (with Title) <span class="required">*</span></label>
+                    <div class="input-box">
+                        <span class="icon">👤</span>
+                        <input type="text" id="lFullName" placeholder="e.g. Dr. John Doe">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Staff ID <span class="required">*</span></label>
+                    <div class="input-box">
+                        <span class="icon">🪪</span>
+                        <input type="text" id="lStaffId" placeholder="e.g. STAFF/001">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Email <span class="required">*</span></label>
+                    <div class="input-box">
+                        <span class="icon">📧</span>
+                        <input type="email" id="lEmail" placeholder="Email address">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Phone</label>
+                    <div class="input-box">
+                        <span class="icon">📱</span>
+                        <input type="tel" id="lPhone" placeholder="Phone number">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Faculty <span class="required">*</span></label>
+                    <select id="lFaculty" onchange="loadDepartments('lFaculty', 'lDept')">
+                        <option value="">Select Faculty</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Department <span class="required">*</span></label>
+                    <select id="lDept" disabled>
+                        <option value="">Select Department</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Qualification <span class="required">*</span></label>
+                    <select id="lQualification">
+                        <option value="">Select</option>
+                        <option value="BSc">B.Sc / B.A / B.Eng</option>
+                        <option value="MSc">M.Sc / M.A / M.Eng</option>
+                        <option value="PhD">Ph.D / Doctorate</option>
+                        <option value="Professor">Professor</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Password <span class="required">*</span></label>
+                    <div class="input-box">
+                        <span class="icon">🔒</span>
+                        <input type="password" id="lPassword" placeholder="Create password">
+                        <span class="toggle-pass" onclick="togglePassword('lPassword')">👁</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Confirm Password <span class="required">*</span></label>
+                    <div class="input-box">
+                        <span class="icon">🔒</span>
+                        <input type="password" id="lConfirmPass" placeholder="Confirm password">
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeLecturerModal()">Cancel</button>
+            <button class="btn-primary" id="lecturerSubmitBtn" onclick="lecturerLogin()">Login</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- ====================================================
+     ADMIN MODAL
+     ==================================================== -->
+<div class="modal" id="adminModal">
+    <div class="modal-box">
+        <div class="modal-header admin">
+            <div class="icon">🔐</div>
+            <h3>Admin Login</h3>
+            <p>Secure administrator access</p>
+        </div>
+        
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Username <span class="required">*</span></label>
+                <div class="input-box">
+                    <span class="icon">👤</span>
+                    <input type="text" id="adminUsername" placeholder="Admin username">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Password <span class="required">*</span></label>
+                <div class="input-box">
+                    <span class="icon">🔒</span>
+                    <input type="password" id="adminPassword" placeholder="Admin password">
+                    <span class="toggle-pass" onclick="togglePassword('adminPassword')">👁</span>
+                </div>
+            </div>
+            
+            <p style="font-size: 11px; color: #888; text-align: center; margin-top: 10px;">
+                Default: admin / admin123
+            </p>
+        </div>
+        
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeAdminModal()">Cancel</button>
+            <button class="btn-primary admin" onclick="adminLogin()">Login</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+
+<!-- External Faculty JS -->
+<script src="faculty.js"></script>
+
+<script>
+// ============================================
+// PRELOADER
+// ============================================
+var loadingBar = document.getElementById('loadingBar');
+var loadingPercent = document.getElementById('loadingPercent');
+var percent = 0;
+
+var loadInterval = setInterval(function() {
+    percent += 2;
+    loadingBar.style.width = percent + '%';
+    loadingPercent.textContent = percent + '%';
+    
+    if (percent >= 100) {
+        clearInterval(loadInterval);
+        setTimeout(function() {
+            document.getElementById('preloader').classList.add('hide');
+            document.getElementById('mainContent').classList.add('show');
+            initializePage();
+        }, 500);
+    }
+}, 50);
+
+
+// ============================================
+// INITIALIZE PAGE
+// ============================================
+function initializePage() {
+    // Load faculties from faculty.js
+    loadFaculties('sFaculty');
+    loadFaculties('lFaculty');
+}
+
+
+// ============================================
+// STUDENT AUTH SWITCHING
+// ============================================
+function switchStudentAuth(type) {
+    var tabs = document.querySelectorAll('.auth-tabs .auth-tab');
+    var loginForm = document.getElementById('studentLoginForm');
+    var signupForm = document.getElementById('studentSignupForm');
+    
+    tabs[0].classList.remove('active');
+    tabs[1].classList.remove('active');
+    
+    if (type === 'login') {
+        tabs[0].classList.add('active');
+        loginForm.classList.add('active');
+        signupForm.classList.remove('active');
+    } else {
+        tabs[1].classList.add('active');
+        signupForm.classList.add('active');
+        loginForm.classList.remove('active');
+    }
+}
+
+
+// ============================================
+// LECTURER AUTH SWITCHING
+// ============================================
+function switchLecturerAuth(type) {
+    var tabs = document.querySelectorAll('.modal-tabs .modal-tab');
+    var loginForm = document.getElementById('lecturerLoginForm');
+    var signupForm = document.getElementById('lecturerSignupForm');
+    var submitBtn = document.getElementById('lecturerSubmitBtn');
+    
+    tabs[0].classList.remove('active');
+    tabs[1].classList.remove('active');
+    
+    if (type === 'login') {
+        tabs[0].classList.add('active');
+        loginForm.classList.add('active');
+        signupForm.classList.remove('active');
+        submitBtn.textContent = 'Login';
+        submitBtn.onclick = lecturerLogin;
+    } else {
+        tabs[1].classList.add('active');
+        signupForm.classList.add('active');
+        loginForm.classList.remove('active');
+        submitBtn.textContent = 'Create Account';
+        submitBtn.onclick = lecturerSignup;
+    }
+}
+
+
+// ============================================
+// PASSWORD TOGGLE
+// ============================================
+function togglePassword(inputId) {
+    var input = document.getElementById(inputId);
+    if (input.type === 'password') {
+        input.type = 'text';
+    } else {
+        input.type = 'password';
+    }
+}
+
+
+// ============================================
+// STUDENT LOGIN
+// ============================================
+function studentLogin() {
+    var matric = document.getElementById('sLoginMatric').value.trim();
+    var password = document.getElementById('sLoginPass').value;
+    
+    if (!matric) {
+        showToast('Please enter Matric Number', 'error');
+        return;
+    }
+    
+    if (!password) {
+        showToast('Please enter Password', 'error');
+        return;
+    }
+    
+    showToast('Login successful! Redirecting...', 'success');
+    setTimeout(function() {
+        window.location.href = 'student-dashboard.html';
+    }, 1500);
+}
+
+
+// ============================================
+// STUDENT SIGNUP
+// ============================================
+function studentSignup() {
+    var firstName = document.getElementById('sFirstName').value.trim();
+    var lastName = document.getElementById('sLastName').value.trim();
+    var matric = document.getElementById('sMatric').value.trim();
+    var email = document.getElementById('sEmail').value.trim();
+    var faculty = document.getElementById('sFaculty').value;
+    var dept = document.getElementById('sDept').value;
+    var level = document.getElementById('sLevel').value;
+    var password = document.getElementById('sPassword').value;
+    var confirmPass = document.getElementById('sConfirmPass').value;
+    
+    if (!firstName || !lastName) {
+        showToast('Please enter your full name', 'error');
+        return;
+    }
+    
+    if (!matric) {
+        showToast('Please enter Matric Number', 'error');
+        return;
+    }
+    
+    if (!email) {
+        showToast('Please enter Email', 'error');
+        return;
+    }
+    
+    if (!faculty || !dept) {
+        showToast('Please select Faculty and Department', 'error');
+        return;
+    }
+    
+    if (!level) {
+        showToast('Please select Level', 'error');
+        return;
+    }
+    
+    if (!password) {
+        showToast('Please create a password', 'error');
+        return;
+    }
+    
+    if (password.length < 6) {
+        showToast('Password must be at least 6 characters', 'error');
+        return;
+    }
+    
+    if (password !== confirmPass) {
+        showToast('Passwords do not match', 'error');
+        return;
+    }
+    
+    // Save to localStorage
+    var students = JSON.parse(localStorage.getItem('students') || '[]');
+    students.push({
+        id: Date.now(),
+        name: firstName + ' ' + lastName,
+        matric: matric,
+        email: email,
+        faculty: faculty,
+        dept: dept,
+        level: parseInt(level)
+    });
+    localStorage.setItem('students', JSON.stringify(students));
+    
+    showToast('Account created successfully!', 'success');
+    
+    setTimeout(function() {
+        // Clear form
+        document.getElementById('sFirstName').value = '';
+        document.getElementById('sLastName').value = '';
+        document.getElementById('sMatric').value = '';
+        document.getElementById('sEmail').value = '';
+        document.getElementById('sFaculty').value = '';
+        document.getElementById('sDept').innerHTML = '<option value="">Select Department</option>';
+        document.getElementById('sDept').disabled = true;
+        document.getElementById('sLevel').value = '';
+        document.getElementById('sPassword').value = '';
+        document.getElementById('sConfirmPass').value = '';
+        
+        switchStudentAuth('login');
+    }, 1500);
+}
+
+
+// ============================================
+// LECTURER MODAL
+// ============================================
+function openLecturerModal() {
+    document.getElementById('lecturerModal').classList.add('show');
+    loadFaculties('lFaculty');
+}
+
+function closeLecturerModal() {
+    document.getElementById('lecturerModal').classList.remove('show');
+    document.getElementById('lLoginStaff').value = '';
+    document.getElementById('lLoginPass').value = '';
+    switchLecturerAuth('login');
+}
+
+
+// ============================================
+// LECTURER LOGIN
+// ============================================
+function lecturerLogin() {
+    var staffId = document.getElementById('lLoginStaff').value.trim();
+    var password = document.getElementById('lLoginPass').value;
+    
+    if (!staffId) {
+        showToast('Please enter Staff ID', 'error');
+        return;
+    }
+    
+    if (!password) {
+        showToast('Please enter Password', 'error');
+        return;
+    }
+    
+    showToast('Login successful! Redirecting...', 'success');
+    setTimeout(function() {
+        window.location.href = 'lecturer-dashboard.html';
+    }, 1500);
+}
+
+
+// ============================================
+// LECTURER SIGNUP
+// ============================================
+function lecturerSignup() {
+    var fullName = document.getElementById('lFullName').value.trim();
+    var staffId = document.getElementById('lStaffId').value.trim();
+    var email = document.getElementById('lEmail').value.trim();
+    var phone = document.getElementById('lPhone').value.trim();
+    var faculty = document.getElementById('lFaculty').value;
+    var dept = document.getElementById('lDept').value;
+    var qualification = document.getElementById('lQualification').value;
+    var password = document.getElementById('lPassword').value;
+    var confirmPass = document.getElementById('lConfirmPass').value;
+    
+    if (!fullName) {
+        showToast('Please enter your full name', 'error');
+        return;
+    }
+    
+    if (!staffId) {
+        showToast('Please enter Staff ID', 'error');
+        return;
+    }
+    
+    if (!email) {
+        showToast('Please enter Email', 'error');
+        return;
+    }
+    
+    if (!faculty || !dept) {
+        showToast('Please select Faculty and Department', 'error');
+        return;
+    }
+    
+    if (!qualification) {
+        showToast('Please select Qualification', 'error');
+        return;
+    }
+    
+    if (!password) {
+        showToast('Please create a password', 'error');
+        return;
+    }
+    
+    if (password.length < 6) {
+        showToast('Password must be at least 6 characters', 'error');
+        return;
+    }
+    
+    if (password !== confirmPass) {
+        showToast('Passwords do not match', 'error');
+        return;
+    }
+    
+    // Save to localStorage
+    var lecturers = JSON.parse(localStorage.getItem('lecturers') || '[]');
+    lecturers.push({
+        id: Date.now(),
+        name: fullName,
+        staffId: staffId,
+        email: email,
+        phone: phone,
+        dept: dept,
+        qualification: qualification,
+        courses: []
+    });
+    localStorage.setItem('lecturers', JSON.stringify(lecturers));
+    
+    showToast('Account created successfully!', 'success');
+    
+    setTimeout(function() {
+        closeLecturerModal();
+    }, 1500);
+}
+
+
+// ============================================
+// ADMIN MODAL
+// ============================================
+function openAdminModal() {
+    document.getElementById('adminModal').classList.add('show');
+}
+
+function closeAdminModal() {
+    document.getElementById('adminModal').classList.remove('show');
+    document.getElementById('adminUsername').value = '';
+    document.getElementById('adminPassword').value = '';
+}
+
+
+// ============================================
+// ADMIN LOGIN
+// ============================================
+function adminLogin() {
+    var username = document.getElementById('adminUsername').value.trim();
+    var password = document.getElementById('adminPassword').value;
+    
+    if (!username) {
+        showToast('Please enter Username', 'error');
+        return;
+    }
+    
+    if (!password) {
+        showToast('Please enter Password', 'error');
+        return;
+    }
+    
+    if (username === 'admin' && password === 'admin123') {
+        showToast('Login successful! Redirecting...', 'success');
+        setTimeout(function() {
+            window.location.href = 'admin-dashboard.html';
+        }, 1500);
+    } else {
+        showToast('Invalid credentials!', 'error');
+    }
+}
+
+
+// ============================================
+// CLOSE MODALS ON OUTSIDE CLICK
+// ============================================
+document.getElementById('lecturerModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeLecturerModal();
+    }
+});
+
+document.getElementById('adminModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeAdminModal();
+    }
+});
+
+
+// ============================================
+// TOAST NOTIFICATION
+// ============================================
+function showToast(message, type) {
+    var toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast ' + type + ' show';
+    
+    setTimeout(function() {
+        toast.classList.remove('show');
+    }, 3000);
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USP – Submit Assignment</title>
+<style>
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f4f6f9; margin:0; user-select:none; }
+header { background:#003366; color:#fff; padding:14px 20px; display:flex; justify-content:space-between; align-items:center; position:relative; }
+header h1 { margin:0; font-size:18px; }
+.nav-links { display:flex; gap:16px; }
+.nav-links a { color:#fff; text-decoration:none; font-weight:bold; font-size:14px; }
+.nav-links a:hover { text-decoration:underline; }
+.hamburger { display:none; font-size:22px; cursor:pointer; }
+.mobile-menu { display:none; position:absolute; top:60px; right:20px; background:#fff; border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,.2); overflow:hidden; z-index:1000; }
+.mobile-menu a { display:block; padding:12px 18px; color:#003366; text-decoration:none; font-weight:600; border-bottom:1px solid #eee; }
+.mobile-menu a:last-child { border-bottom:none; }
+.mobile-menu a:hover { background:#f0f4fa; }
+main { max-width:700px; margin:30px auto; padding:20px; }
+.card { background:#fff; padding:25px; border-radius:8px; box-shadow:0 5px 15px rgba(0,0,0,0.1); }
+.card h2 { color:#003366; margin-top:0; }
+input[type="file"], textarea { width:100%; padding:10px; margin-top:10px; border-radius:5px; border:1px solid #ccc; }
+textarea { min-height:150px; resize:vertical; }
+button { padding:12px 20px; margin-top:15px; border:none; border-radius:5px; background:#003366; color:#fff; cursor:pointer; font-size:16px; transition:.3s; }
+button:hover:not(:disabled) { background:#002244; }
+button:disabled { background:#ccc; cursor:not-allowed; }
+p.error { color:red; margin-top:10px; }
+p.success { color:green; margin-top:10px; }
+@media(max-width:768px){ .nav-links { display:none; } .hamburger { display:block; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>USP | Submit Assignment</h1>
+  <nav class="nav-links">
+    <a href="dashboard-student.html">Dashboard</a>
+    <a href="student signup and login.html" onclick="logout()">Logout</a>
+  </nav>
+  <div class="hamburger" onclick="toggleMenu()">☰</div>
+  <div class="mobile-menu" id="mobileMenu">
+    
+    <a href="dashboard-student.html">Dashboard</a>
+    <a href="course-student.html">Course</a>
+    <a href="profile-student.html">Profile</a>
+
+    <a href="student signup and login.html" onclick="logout()">Logout</a>
+  </div>
+</header>
+
+<main>
+  <div class="card">
+    <h2 id="assignmentTitle">Assignment Submission</h2>
+
+    <div id="instructionSection">
+      <!-- File Upload -->
+      <div id="fileUploadDiv">
+        <label for="assignmentFile"><strong>Upload File (PDF, DOC, DOCX) - Max 1:</strong></label>
+        <input type="file" id="assignmentFile" accept=".pdf,.doc,.docx" />
+      </div>
+
+      <!-- Image Upload -->
+      <div id="imageUploadDiv">
+        <label for="assignmentImage"><strong>Upload Images (JPG, PNG, GIF) - Max 10:</strong></label>
+        <input type="file" id="assignmentImage" accept="image/png, image/jpeg, image/jpg, image/gif" multiple />
+      </div>
+
+      <!-- Text Submission -->
+      <div id="textSubmitDiv">
+        <label for="assignmentText"><strong>Or Write Text (Max 5000 characters):</strong></label>
+        <textarea id="assignmentText" placeholder="Type your assignment here..."></textarea>
+      </div>
+    </div>
+
+    <button id="submitBtn" onclick="submitAssignment()">Submit Assignment</button>
+    <p id="error" class="error"></p>
+    <p id="success" class="success"></p>
+  </div>
+</main>
+
+<script src="../js/faculty.js"></script>
+<script>
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("keydown", e => { if(e.ctrlKey && ["c","x","a","u"].includes(e.key.toLowerCase())) e.preventDefault(); });
+
+function toggleMenu(){
+  const menu = document.getElementById("mobileMenu");
+  menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+document.addEventListener("click", e => {
+  const menu = document.getElementById("mobileMenu");
+  if(!menu.contains(e.target) && !e.target.classList.contains('hamburger')) menu.style.display="none";
+});
+
+function logout() {
+  localStorage.clear();
+  window.location.href = "student signup and login.html";
+}
+
+// ===== Load course & assignment info =====
+const selectedCourse = localStorage.getItem("selectedCourse");
+const selectedAssignment = localStorage.getItem("selectedAssignment");
+
+const assignmentTitleEl = document.getElementById("assignmentTitle");
+const fileDiv = document.getElementById("fileUploadDiv");
+const imageDiv = document.getElementById("imageUploadDiv");
+const textDiv = document.getElementById("textSubmitDiv");
+const submitBtn = document.getElementById("submitBtn");
+const errorText = document.getElementById("error");
+const successText = document.getElementById("success");
+
+// Load assignment instructions from localStorage (mock database)
+let assignmentData = null;
+if(selectedCourse && selectedAssignment){
+  const assignments = JSON.parse(localStorage.getItem(selectedCourse+"_assignments")) || [];
+  assignmentData = assignments.find(a => a.title === selectedAssignment) || null;
+}
+
+if(!assignmentData){
+  assignmentTitleEl.textContent = "No assignment selected or assignment not found!";
+  submitBtn.disabled = true;
+} else {
+  assignmentTitleEl.textContent = `${assignmentData.title} (${selectedCourse})`;
+
+  // Show only allowed submission types
+  fileDiv.style.display = assignmentData.type.includes("file") ? "block" : "none";
+  imageDiv.style.display = assignmentData.type.includes("image") ? "block" : "none";
+  textDiv.style.display = assignmentData.type.includes("text") ? "block" : "none";
+
+  // Check deadline
+  const deadline = new Date(assignmentData.deadlineDate+" "+assignmentData.deadlineTime).getTime();
+  if(deadline - Date.now() <= 0){
+    errorText.textContent = "Assignment deadline has passed! Submission disabled.";
+    submitBtn.disabled = true;
+  }
+}
+
+function submitAssignment() {
+  errorText.textContent = "";
+  successText.textContent = "";
+
+  if(!assignmentData) return;
+
+  const fileInput = document.getElementById("assignmentFile");
+  const imageInput = document.getElementById("assignmentImage");
+  const textInput = document.getElementById("assignmentText");
+
+  const file = fileInput.files[0];
+  const images = Array.from(imageInput.files || []);
+  const text = textInput.value.trim();
+
+  // Validation
+  if(!file && images.length === 0 && !text){
+    errorText.textContent = "Please submit according to the instructions!";
+    return;
+  }
+
+  // File: only 1
+  if(file && assignmentData.type.includes("file")){
+    const maxSize = 5*1024*1024;
+    const allowedTypes = ["application/pdf","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+    if(!allowedTypes.includes(file.type)){ errorText.textContent = "Invalid file type!"; return; }
+    if(file.size > maxSize){ errorText.textContent = "File too large! Max 5MB."; return; }
+  }
+
+  // Images: up to 10
+  if(images.length > 10){ errorText.textContent = "You can upload up to 10 images only!"; return; }
+  for(let img of images){
+    const maxSize = 5*1024*1024;
+    const allowedTypes = ["image/png","image/jpeg","image/jpg","image/gif"];
+    if(!allowedTypes.includes(img.type)){ errorText.textContent = "Invalid image type!"; return; }
+    if(img.size > maxSize){ errorText.textContent = "Each image max 5MB."; return; }
+  }
+
+  // Text: max 5000 chars
+  if(text.length > 5000){ errorText.textContent = "Text exceeds 5000 characters!"; return; }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Submitting...";
+
+  // Simulate 2 seconds delay
+  setTimeout(()=>{
+    // Save submission to localStorage (mock DB)
+    const submissions = JSON.parse(localStorage.getItem("submissions")) || [];
+    submissions.push({
+      course: selectedCourse,
+      assignment: selectedAssignment,
+      file: file ? file.name : null,
+      images: images.map(i=>i.name),
+      text: text,
+      date: new Date().toLocaleString()
+    });
+    localStorage.setItem("submissions", JSON.stringify(submissions));
+
+    // Redirect to submission success page
+    window.location.href = "submission success.html";
+  }, 2000);
+}
+</script>
+</body>
+</html>

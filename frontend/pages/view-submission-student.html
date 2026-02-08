@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>USP – View Submissions</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* ===== BASE ===== */
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: #f4f6f9;
+  color: #333;
+}
+
+/* ===== HEADER / NAV ===== */
+header {
+  background: #003366;
+  color: #fff;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 16px;
+}
+
+.nav-links a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.nav-links a:hover {
+  text-decoration: underline;
+}
+
+/* ===== HAMBURGER ===== */
+.hamburger {
+  display: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.mobile-menu {
+  display: none;
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.2);
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.mobile-menu a {
+  display: block;
+  padding: 12px 18px;
+  color: #003366;
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 1px solid #eee;
+}
+
+.mobile-menu a:last-child {
+  border-bottom: none;
+}
+
+.mobile-menu a:hover {
+  background: #f0f4fa;
+}
+
+/* ===== MAIN ===== */
+main {
+  max-width: 1100px;
+  margin: 25px auto;
+  padding: 0 15px;
+}
+
+.section {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0,0,0,.08);
+}
+
+.section h2 {
+  margin-top: 0;
+  color: #003366;
+}
+
+/* ===== TABLE ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th, td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+  font-size: 14px;
+}
+
+th {
+  background: #003366;
+  color: #fff;
+}
+
+.status {
+  font-weight: 600;
+}
+
+.status.Submitted { color: #c47f00; }
+.status.Graded { color: #0b7a0b; }
+
+.action-btn {
+  background: #003366;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.action-btn.secondary {
+  background: #555;
+}
+
+.action-btn:hover {
+  opacity: .9;
+}
+
+/* ===== EMPTY STATE ===== */
+.empty {
+  text-align: center;
+  padding: 30px;
+  color: #666;
+  font-style: italic;
+}
+
+/* ===== MOBILE CARD VIEW ===== */
+.cards {
+  display: none;
+  gap: 15px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,.1);
+  padding: 15px;
+}
+
+.card h3 {
+  margin: 0 0 8px;
+  color: #003366;
+}
+
+.card p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.card .actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width: 768px) {
+  .nav-links { display: none; }
+  .hamburger { display: block; }
+  table { display: none; }
+  .cards { display: grid; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>USP | View Submissions</h1>
+
+  <nav class="nav-links">
+    <a href="dashboard-student.html">Dashboard</a>
+    <a href="profile-student.html">Profile</a>
+    <!-- <a href="view-submissions-student.html">Submissions</a> -->
+    <a href="student signup and login.html" onclick="logout()">Logout</a>
+  </nav>
+
+  <div class="hamburger" onclick="toggleMenu()">☰</div>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="dashboard-student.html">Dashboard</a>
+    <a href="profile-student.html">Profile</a>
+    <!-- <a href="view-submissions-student.html">Submissions</a> -->
+    <a href="student signup and login.html" onclick="logout()">Logout</a>
+  </div>
+</header>
+
+<main>
+  <div class="section">
+    <h2>Assignment Submission History</h2>
+
+    <!-- TABLE VIEW -->
+    <table id="submissionTable">
+      <tr>
+        <th>Course</th>
+        <th>Assignment</th>
+        <th>Type</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Score</th>
+        <th>Action</th>
+      </tr>
+    </table>
+
+    <!-- MOBILE CARDS -->
+    <div class="cards" id="submissionCards"></div>
+  </div>
+</main>
+
+<script>
+/* ===== NAV MENU ===== */
+function toggleMenu(){
+  const menu = document.getElementById("mobileMenu");
+  menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+
+document.addEventListener("click", e => {
+  const menu = document.getElementById("mobileMenu");
+  if(!e.target.closest(".hamburger") && !e.target.closest(".mobile-menu")){
+    menu.style.display = "none";
+  }
+});
+
+/* ===== LOAD SUBMISSIONS ===== */
+function loadSubmissions(){
+  const table = document.getElementById("submissionTable");
+  const cards = document.getElementById("submissionCards");
+
+  const submissions = JSON.parse(localStorage.getItem("submissions")) || [];
+
+  if(!submissions.length){
+    table.innerHTML += `<tr><td colspan="7" class="empty">No submissions yet</td></tr>`;
+    cards.innerHTML = `<div class="empty">No submissions yet</div>`;
+    return;
+  }
+
+  submissions.forEach(s => {
+    const date = new Date(s.submittedAt).toLocaleString();
+
+    /* TABLE ROW */
+    table.innerHTML += `
+      <tr>
+        <td>${s.course}</td>
+        <td>${s.assignment}</td>
+        <td>${s.type}</td>
+        <td>${date}</td>
+        <td class="status ${s.status}">${s.status}</td>
+        <td>${s.score ?? "—"}</td>
+        <td>${renderActions(s)}</td>
+      </tr>
+    `;
+
+    /* CARD */
+    cards.innerHTML += `
+      <div class="card">
+        <h3>${s.assignment}</h3>
+        <p><strong>Course:</strong> ${s.course}</p>
+        <p><strong>Type:</strong> ${s.type}</p>
+        <p><strong>Date:</strong> ${date}</p>
+        <p><strong>Status:</strong> ${s.status}</p>
+        <p><strong>Score:</strong> ${s.score ?? "—"}</p>
+        <div class="actions">${renderActions(s)}</div>
+      </div>
+    `;
+  });
+}
+
+/* ===== ACTION BUTTONS ===== */
+function renderActions(s){
+  if(s.type === "Text"){
+    return `<button class="action-btn" onclick="viewText('${s.id}')">View</button>`;
+  }
+  return `
+    <button class="action-btn" onclick="viewFile('${s.id}')">View</button>
+    <button class="action-btn secondary" onclick="downloadFile('${s.id}')">Download</button>
+  `;
+}
+
+function getSubmission(id){
+  const submissions = JSON.parse(localStorage.getItem("submissions")) || [];
+  return submissions.find(s => s.id === id);
+}
+
+function viewFile(id){
+  const s = getSubmission(id);
+  const win = window.open();
+  win.document.write(`<iframe style="width:100%;height:100vh" src="${s.content.fileData}"></iframe>`);
+}
+
+function downloadFile(id){
+  const s = getSubmission(id);
+  const a = document.createElement("a");
+  a.href = s.content.fileData;
+  a.download = s.content.fileName;
+  a.click();
+}
+
+function viewText(id){
+  const s = getSubmission(id);
+  alert(s.content.textAnswer);
+}
+
+/* ===== LOGOUT ===== */
+function logout(){
+  window.location.href = "student signup and login.html";
+}
+
+loadSubmissions();
+</script>
+
+</body>
+</html>

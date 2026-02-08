@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>USP – Grade Assignment</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  height:100%;
+  font-family:Arial,sans-serif;
+  background:#f4f6f9;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ===== HEADER ===== */
+header{
+  background:#003366;
+  color:#fff;
+  padding:14px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;
+  top:0;
+  z-index:1000;
+}
+header h1{font-size:18px;font-weight:bold}
+
+/* Hamburger */
+.menu-toggle{
+  display:none;
+  font-size:26px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+/* Nav */
+nav{
+  display:flex;
+  gap:18px;
+}
+nav a{
+  color:#fff;
+  text-decoration:none;
+  font-weight:bold;
+}
+
+/* ===== MAIN ===== */
+main{
+  flex:1;
+  max-width:1400px;
+  width:100%;
+  margin:auto;
+  padding:16px;
+}
+.section{
+  background:#fff;
+  border-radius:8px;
+  box-shadow:0 6px 16px rgba(0,0,0,.12);
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ===== INFO TABLE ===== */
+.info-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-bottom:18px;
+}
+.info-table td{
+  padding:8px;
+  border:1px solid #ddd;
+  font-weight:bold;
+  background:#f9f9f9;
+}
+
+/* ===== VIEWER DEMARCATION ===== */
+.viewer-title{
+  font-size:18px;
+  font-weight:bold;
+  margin-bottom:10px;
+  border-bottom:2px solid #003366;
+  padding-bottom:6px;
+}
+
+/* ===== FILE GRID ===== */
+#fileViewer{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;
+  margin-bottom:25px;
+}
+.file-card{
+  background:#fafafa;
+  border:1px solid #ddd;
+  border-radius:8px;
+  overflow:hidden;
+}
+.file-card img,
+.file-card iframe{
+  width:100%;
+  height:160px;
+  object-fit:cover;
+  border:none;
+}
+.file-card a{
+  display:block;
+  background:#003366;
+  color:#fff;
+  text-align:center;
+  padding:10px;
+  font-weight:bold;
+  text-decoration:none;
+}
+
+/* ===== GRADING ===== */
+.grading-form{
+  border-top:3px solid #e0e0e0;
+  padding-top:20px;
+}
+label{font-weight:bold;margin-top:12px}
+input[type=number],textarea{
+  width:100%;
+  padding:8px;
+  margin-top:5px;
+  border-radius:5px;
+  border:1px solid #ccc;
+}
+textarea{height:120px}
+button{
+  padding:10px 14px;
+  border:none;
+  border-radius:5px;
+  background:#003366;
+  color:#fff;
+  cursor:pointer;
+}
+button:disabled{background:#777}
+
+.badge{
+  padding:4px 10px;
+  border-radius:12px;
+  font-size:12px;
+  font-weight:bold;
+}
+.graded{background:#2e7d32;color:#fff}
+.ungraded{background:#c62828;color:#fff}
+
+/* ===== FOOTER ===== */
+footer{
+  background:#003366;
+  color:#fff;
+  text-align:center;
+  padding:14px;
+  font-size:13px;
+  margin-top:auto;
+}
+
+/* ===== MOBILE ===== */
+@media(max-width:768px){
+  .menu-toggle{display:block}
+  nav{
+    display:none;
+    position:absolute;
+    top:60px;
+    right:18px;
+    background:#fff;
+    flex-direction:column;
+    width:220px;
+    padding:15px;
+    border-radius:6px;
+    box-shadow:0 6px 16px rgba(0,0,0,.25);
+  }
+  nav.active{display:flex}
+  nav a{
+    color:#003366;
+    padding:8px 0;
+    font-size:17px;
+    font-weight:bold;
+  }
+
+  .info-table td,
+  .viewer-title{
+    font-size:16px;
+    font-weight:900;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>USP | Grade Assignment</h1>
+  <div class="menu-toggle" id="menuToggle">☰</div>
+  <nav id="navMenu">
+    <a href="view-submissions-lecturer.html">Submission List</a>
+    <a href="course-lecturer.html">Course</a>
+    <a href="preloader.html" onclick="logout()">Logout</a>
+  </nav>
+</header>
+
+<main>
+  <div class="section">
+
+    <!-- INFO -->
+    <table class="info-table">
+      <tr><td>Course</td><td id="courseTitle"></td></tr>
+      <!-- <tr><td>Assignment</td><td id="assignmenttitle"></td></tr> -->
+      <tr><td>Student</td><td id="studentName"></td></tr>
+      <tr><td>Matric No</td><td id="studentMatric"></td></tr>
+    </table>
+
+    <!-- VIEWER -->
+    <div class="viewer-title">Submitted Files</div>
+    <div id="fileViewer"></div>
+
+    <!-- GRADING -->
+     <div class="grading-form">
+      <div id="quickScoreButtons"></div>
+
+      <label>Score</label>
+      <input type="number" id="customScore"> / <span id="maxMark"></span>
+
+      <br><br><label>Feedback</label>
+      <textarea id="feedback"></textarea>
+
+      <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+        <button onclick="previousStudent()">← Previous</button>
+        <button id="saveBtn">Save</button>
+        <button onclick="goBack()">Back</button>
+        <button onclick="nextStudent()">Next →</button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>© <span id="year"></span> University Submission Portal</footer>
+
+<script>
+const menuToggle=document.getElementById('menuToggle');
+const nav=document.getElementById('navMenu');
+menuToggle.onclick=()=>nav.classList.toggle('active');
+document.addEventListener('click',e=>{
+  if(!nav.contains(e.target)&&!menuToggle.contains(e.target)){
+    nav.classList.remove('active');
+  }
+});
+
+function logout(){location.href='lecturer-login.html'}
+function goBack(){location.href='submission-list.html'}
+document.getElementById('year').innerText=new Date().getFullYear();
+
+const course=localStorage.getItem('selectedCourse')||'CSC 301';
+courseTitle.innerText=course;
+
+const assignments=JSON.parse(localStorage.getItem(course+'_assignments')||'[]');
+const assignment=assignments[0]||{title:'Assignment',totalMark:30};
+assignmentName.innerText=assignment.title;
+maxMark.innerText=assignment.totalMark;
+
+let submissions=JSON.parse(localStorage.getItem(course+'_'+assignment.title+'_submissions')||'[]');
+let currentIndex=0;
+
+for(let i=5;i<=assignment.totalMark;i+=5){
+  const b=document.createElement('button');
+  b.textContent=i;
+  b.onclick=()=>customScore.value=i;
+  quickScoreButtons.appendChild(b);
+}
+
+function renderStudent(){
+  const s=submissions[currentIndex];
+  if(!s)return;
+  studentName.innerText=s.student;
+  studentMatric.innerText=s.matric||'—';
+  customScore.value=s.score??'';
+  feedback.value=s.feedback??'';
+  renderFiles(s.files||[]);
+}
+renderStudent();
+
+function renderFiles(files){
+  fileViewer.innerHTML='';
+  if(!files.length){fileViewer.innerText='No files submitted';return;}
+  files.forEach(f=>{
+    const c=document.createElement('div');
+    c.className='file-card';
+    if(f.type==='image'){const i=document.createElement('img');i.src=f.url;c.appendChild(i);}
+    else if(f.type==='pdf'){const i=document.createElement('iframe');i.src=f.url;c.appendChild(i);}
+    else{const a=document.createElement('a');a.href=f.url;a.textContent='Download File';c.appendChild(a);}
+    fileViewer.appendChild(c);
+  });
+}
+
+saveBtn.onclick=()=>{
+  saveBtn.disabled=true;
+  setTimeout(()=>{
+    const s=submissions[currentIndex];
+    s.score=Number(customScore.value);
+    s.feedback=feedback.value;
+    localStorage.setItem(course+'_'+assignment.title+'_submissions',JSON.stringify(submissions));
+    saveBtn.disabled=false;
+    alert('Saved');
+  },700);
+};
+
+function nextStudent(){if(currentIndex<submissions.length-1){currentIndex++;renderStudent()}}
+function previousStudent(){if(currentIndex>0){currentIndex--;renderStudent()}}
+</script>
+
+</body>
+</html>

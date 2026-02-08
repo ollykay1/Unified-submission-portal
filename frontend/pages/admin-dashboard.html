@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USP Admin - Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+  position: fixed; top: 0; left: 0; width: 260px; height: 100vh;
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  color: #fff; z-index: 1000; transition: transform 0.3s ease;
+}
+.sidebar-header { padding: 20px; border-bottom: 1px solid #334155; display: flex; align-items: center; gap: 12px; }
+.sidebar-header .logo { width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
+.sidebar-header h2 { font-size: 20px; font-weight: 700; }
+.sidebar-nav { padding: 20px 0; }
+.nav-section { padding: 0 20px; margin-bottom: 10px; }
+.nav-section-title { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 600; letter-spacing: 1px; margin-bottom: 10px; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #94a3b8; text-decoration: none; transition: all 0.2s; border-left: 3px solid transparent; cursor: pointer; }
+.nav-item:hover { background: #1e293b; color: #fff; }
+.nav-item.active { background: linear-gradient(90deg, rgba(59,130,246,0.2), transparent); border-left-color: #3b82f6; color: #fff; }
+.nav-item svg { width: 20px; height: 20px; }
+.nav-item span { font-size: 14px; font-weight: 500; }
+.sidebar-footer { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; border-top: 1px solid #334155; }
+.user-info { display: flex; align-items: center; gap: 12px; }
+.user-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+.user-details h4 { font-size: 14px; font-weight: 600; }
+.user-details p { font-size: 12px; color: #64748b; }
+
+/* Main Content */
+.main-content { margin-left: 260px; min-height: 100vh; }
+
+/* Header */
+.header { background: #fff; padding: 16px 30px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 100; }
+.header-left { display: flex; align-items: center; gap: 20px; }
+.menu-toggle { display: none; background: none; border: none; cursor: pointer; padding: 8px; border-radius: 8px; }
+.menu-toggle:hover { background: #f1f5f9; }
+.search-box { position: relative; }
+.search-box input { width: 300px; padding: 10px 16px 10px 40px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: #f8fafc; }
+.search-box input:focus { outline: none; border-color: #3b82f6; background: #fff; }
+.search-box svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: #94a3b8; }
+.header-right { display: flex; align-items: center; gap: 16px; }
+.header-btn { position: relative; background: none; border: none; padding: 10px; border-radius: 10px; cursor: pointer; color: #64748b; }
+.header-btn:hover { background: #f1f5f9; color: #1e293b; }
+.header-btn svg { width: 22px; height: 22px; }
+.badge { position: absolute; top: 4px; right: 4px; width: 18px; height: 18px; background: #ef4444; color: #fff; font-size: 10px; font-weight: 600; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.header-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 50%; cursor: pointer; }
+
+/* Page Content */
+.page-content { padding: 30px; }
+.page-header { margin-bottom: 30px; }
+.page-header h1 { font-size: 28px; font-weight: 700; color: #1e293b; }
+.page-header p { color: #64748b; margin-top: 4px; }
+
+/* Stats Grid */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+.stat-card { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: relative; overflow: hidden; }
+.stat-card::before { content: ''; position: absolute; top: 0; right: 0; width: 100px; height: 100px; border-radius: 50%; opacity: 0.1; transform: translate(30%, -30%); }
+.stat-card.blue::before { background: #3b82f6; }
+.stat-card.green::before { background: #10b981; }
+.stat-card.purple::before { background: #8b5cf6; }
+.stat-card.orange::before { background: #f59e0b; }
+.stat-card.pink::before { background: #ec4899; }
+.stat-card.cyan::before { background: #06b6d4; }
+.stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+.stat-icon.blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+.stat-icon.green { background: linear-gradient(135deg, #10b981, #059669); }
+.stat-icon.purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+.stat-icon.orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.stat-icon.pink { background: linear-gradient(135deg, #ec4899, #db2777); }
+.stat-icon.cyan { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+.stat-icon svg { width: 24px; height: 24px; color: #fff; }
+.stat-label { font-size: 14px; color: #64748b; font-weight: 500; }
+.stat-value { font-size: 28px; font-weight: 700; color: #1e293b; margin: 4px 0; }
+.stat-change { font-size: 13px; display: flex; align-items: center; gap: 4px; }
+.stat-change.up { color: #10b981; }
+.stat-change.down { color: #ef4444; }
+
+/* Cards */
+.card { background: #fff; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.card-header { padding: 20px 24px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
+.card-header h3 { font-size: 18px; font-weight: 600; color: #1e293b; }
+.card-body { padding: 24px; }
+
+/* Charts Grid */
+.charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 30px; }
+.chart-container { height: 300px; position: relative; }
+
+/* Quick Lookup */
+.lookup-section { margin-bottom: 30px; }
+.lookup-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+.form-group { display: flex; flex-direction: column; }
+.form-group label { display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px; }
+.form-group select, .form-group input { width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: #f8fafc; cursor: pointer; }
+.form-group select:focus, .form-group input:focus { outline: none; border-color: #3b82f6; background: #fff; }
+.form-group select:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+.btn { padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+.btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
+.btn-secondary { background: #f1f5f9; color: #475569; }
+.btn-secondary:hover { background: #e2e8f0; }
+.courses-display { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.course-tag { padding: 8px 16px; background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #1d4ed8; border-radius: 20px; font-size: 13px; font-weight: 500; border: 1px solid #bfdbfe; cursor: pointer; transition: all 0.2s; }
+.course-tag:hover { background: #3b82f6; color: #fff; }
+
+/* Table */
+.table-container { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+th { background: #f8fafc; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+td { font-size: 14px; color: #374151; }
+tr:hover { background: #f8fafc; }
+.status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+.status-badge.active { background: #d1fae5; color: #059669; }
+.status-badge.pending { background: #fef3c7; color: #d97706; }
+.status-badge.inactive { background: #fee2e2; color: #dc2626; }
+
+/* Activity Feed */
+.activity-list { display: flex; flex-direction: column; }
+.activity-item { display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid #f1f5f9; }
+.activity-item:last-child { border-bottom: none; }
+.activity-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.activity-icon.blue { background: #eff6ff; color: #3b82f6; }
+.activity-icon.green { background: #ecfdf5; color: #10b981; }
+.activity-icon.purple { background: #f5f3ff; color: #8b5cf6; }
+.activity-icon.orange { background: #fff7ed; color: #f59e0b; }
+.activity-icon svg { width: 18px; height: 18px; }
+.activity-content h4 { font-size: 14px; font-weight: 500; color: #1e293b; }
+.activity-content p { font-size: 13px; color: #64748b; margin-top: 2px; }
+.activity-time { font-size: 12px; color: #94a3b8; margin-left: auto; white-space: nowrap; }
+
+/* Two Column Layout */
+.two-col { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+
+/* Mobile Responsive */
+@media (max-width: 1024px) {
+  .charts-grid { grid-template-columns: 1fr; }
+  .two-col { grid-template-columns: 1fr; }
+  .lookup-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main-content { margin-left: 0; }
+  .menu-toggle { display: block; }
+  .search-box input { width: 200px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .lookup-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .header { padding: 12px 16px; }
+  .page-content { padding: 16px; }
+  .search-box { display: none; }
+}
+
+/* Overlay */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
+.overlay.show { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Overlay for mobile -->
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">U</div>
+    <h2>USP Admin</h2>
+  </div>
+  
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-title">Main Menu</div>
+      <a href="admin-dashboard.html" class="nav-item active">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="admin-faculties.html" class="nav-item">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        <span>Faculties</span>
+      </a>
+      <a href="admin-courses.html" class="nav-item">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <span>Courses</span>
+      </a>
+      <a href="admin-uck.html" class="nav-item">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+        <span>UCK Management</span>
+      </a>
+    </div>
+    
+    <div class="nav-section">
+      <div class="nav-section-title">System</div>
+      <a href="admin-settings.html" class="nav-item">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span>Settings</span>
+      </a>
+    </div>
+  </nav>
+  
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar">AD</div>
+      <div class="user-details">
+        <h4>Admin User</h4>
+        <p>Super Admin</p>
+      </div>
+    </div>
+  </div>
+</aside>
+<script src="usp admin/faculty.js"></script>
+<!-- Main Content -->
+<main class="main-content">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <button class="menu-toggle" onclick="toggleSidebar()">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="search-box">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" placeholder="Search anything...">
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="header-btn" onclick="location.href='admin-settings.html#notifications'">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="badge">5</span>
+      </button>
+      <button class="header-btn" onclick="location.href='admin-settings.html#messages'">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        <span class="badge">3</span>
+      </button>
+      <div class="header-avatar" onclick="location.href='admin-settings.html#profile'"></div>
+    </div>
+  </header>
+
+  <!-- Page Content -->
+  <div class="page-content">
+    <div class="page-header">
+      <h1>Dashboard Overview</h1>
+      <p>Welcome back, Admin! Here's what's happening today.</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card blue">
+        <div class="stat-icon blue">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        </div>
+        <p class="stat-label">Total Faculties</p>
+        <h3 class="stat-value" id="totalFaculties">0</h3>
+        <p class="stat-change up"><svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"/></svg> Active</p>
+      </div>
+      
+      <div class="stat-card green">
+        <div class="stat-icon green">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        </div>
+        <p class="stat-label">Total Departments</p>
+        <h3 class="stat-value" id="totalDepartments">0</h3>
+        <p class="stat-change up"><svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"/></svg> +2 new</p>
+      </div>
+      
+      <div class="stat-card purple">
+        <div class="stat-icon purple">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        </div>
+        <p class="stat-label">Total Courses</p>
+        <h3 class="stat-value" id="totalCourses">0</h3>
+        <p class="stat-change up"><svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"/></svg> +15 new</p>
+      </div>
+      
+      <div class="stat-card orange">
+        <div class="stat-icon orange">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        </div>
+        <p class="stat-label">Active Students</p>
+        <h3 class="stat-value">12,458</h3>
+        <p class="stat-change up"><svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"/></svg> +8.2%</p>
+      </div>
+      
+      <div class="stat-card pink">
+        <div class="stat-icon pink">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        </div>
+        <p class="stat-label">Total Lecturers</p>
+        <h3 class="stat-value">486</h3>
+        <p class="stat-change up"><svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"/></svg> +12 new</p>
+      </div>
+      
+      <div class="stat-card cyan">
+        <div class="stat-icon cyan">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <p class="stat-label">Completion Rate</p>
+        <h3 class="stat-value">98.2%</h3>
+        <p class="stat-change up"><svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"/></svg> +2.4%</p>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+      <div class="card">
+        <div class="card-header">
+          <h3>Enrollment Trends</h3>
+          <select style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;">
+            <option>This Year</option>
+            <option>Last Year</option>
+          </select>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas id="enrollmentChart"></canvas>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-header">
+          <h3>Students by Faculty</h3>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas id="facultyChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Course Lookup -->
+    <div class="card lookup-section">
+      <div class="card-header">
+        <h3>Quick Course Lookup</h3>
+      </div>
+      <div class="card-body">
+        <div class="lookup-grid">
+          <div class="form-group">
+            <label>Faculty</label>
+            <select id="facultySelect" onchange="updateDepartments()">
+              <option value="">Select Faculty</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Department</label>
+            <select id="departmentSelect" onchange="updateLevels()" disabled>
+              <option value="">Select Department</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Level</label>
+            <select id="levelSelect" onchange="updateCourses()" disabled>
+              <option value="">Select Level</option>
+            </select>
+          </div>
+          <div class="form-group" style="display:flex;align-items:flex-end;">
+            <button class="btn btn-secondary" onclick="clearSelection()" style="width:100%;">Clear</button>
+          </div>
+        </div>
+        <div class="courses-display" id="coursesDisplay"></div>
+      </div>
+    </div>
+
+    <!-- Two Column Layout -->
+    <div class="two-col">
+      <!-- Faculty Table -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Faculty Overview</h3>
+          <a href="admin-faculties.html" style="color:#3b82f6;font-size:14px;text-decoration:none;">View All →</a>
+        </div>
+        <div class="card-body">
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Faculty</th>
+                  <th>Departments</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="facultyTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>                                  
+
+      <!-- Recent Activity -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Recent Activity</h3>
+        </div>
+        <div class="card-body">
+          <div class="activity-list">
+            <div class="activity-item">
+              <div class="activity-icon blue">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+              </div>
+              <div class="activity-content">
+                <h4>New student registered</h4>
+                <p>John Doe joined Computer Science</p>
+              </div>
+              <span class="activity-time">5 min ago</span>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon green">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <div class="activity-content">
+                <h4>Course completed</h4>
+                <p>CSC301 results published</p>
+              </div>
+              <span class="activity-time">1 hour ago</span>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon purple">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+              </div>
+              <div class="activity-content">
+                <h4>UCK assigned</h4>
+                <p>New key for ACC201</p>
+              </div>
+              <span class="activity-time">2 hours ago</span>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon orange">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+              </div>
+              <div class="activity-content">
+                <h4>New course added</h4>
+                <p>CYB405 added to ICT faculty</p>
+              </div>
+              <span class="activity-time">3 hours ago</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<div id="faculty-container"></div>
+<!-- Faculty Data Script -->
+
+<script id="module" src="faculty.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+ 
+// Sidebar Toggle
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+// Initialize Dashboard
+document.addEventListener('DOMContentLoaded', function() {
+  initStats();
+  initCharts();
+  initFacultyDropdown();
+  initFacultyTable();
+});
+
+// Initialize Stats
+function initStats() {
+  const faculties = FacultyService.getFaculties();
+  let totalDepts = 0;
+  let totalCourses = 0;
+  
+  faculties.forEach(faculty => {
+    const depts = FacultyService.getDepartments(faculty);
+    totalDepts += depts.length;
+    depts.forEach(dept => {
+      const levels = FacultyService.getLevels(faculty, dept);
+      levels.forEach(level => {
+        totalCourses += FacultyService.getCourses(faculty, dept, level).length;
+      });
+    });
+  });
+  
+  document.getElementById('totalFaculties').textContent = faculties.length;
+  document.getElementById('totalDepartments').textContent = totalDepts;
+  document.getElementById('totalCourses').textContent = totalCourses;
+}
+
+// Initialize Charts
+function initCharts() {
+  // Enrollment Chart
+  const enrollmentCtx = document.getElementById('enrollmentChart').getContext('2d');
+  new Chart(enrollmentCtx, {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      datasets: [{
+        label: 'Students',
+        data: [ 1200, 1500, 1700, 1400, 1800, 2000, 2200, 2100, 2300, 2500, 2700, 3000 ],
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // Faculty Distribution Chart
+  const facultyCtx = document.getElementById('facultyChart').getContext('2d');
+  const faculties = FacultyService.getFaculties().slice(0, 12);
+  new Chart(facultyCtx, {
+    type: 'doughnut',
+    data: {
+      labels: faculties,
+      datasets: [{
+        data: [2500, 1800, 2200, 1500, 1900, 2100 , 1700, 1600, 2000, 1400, 1300, 1200],
+        backgroundColor: ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899', '#06b6d4'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'right', labels: { boxWidth: 12, padding: 15 } }
+      }
+    }
+  });
+}
+
+// Faculty Dropdown
+function initFacultyDropdown() {
+  const select = document.getElementById('facultySelect');
+  const faculties = FacultyService.getFaculties();
+  faculties.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value = f;
+    opt.textContent = f;
+    select.appendChild(opt);
+  });
+}
+
+function updateDepartments() {
+  const faculty = document.getElementById('facultySelect').value;
+  const deptSelect = document.getElementById('departmentSelect');
+  const levelSelect = document.getElementById('levelSelect');
+  
+  deptSelect.innerHTML = '<option value="">Select Department</option>';
+  levelSelect.innerHTML = '<option value="">Select Level</option>';
+  levelSelect.disabled = true;
+  document.getElementById('coursesDisplay').innerHTML = '';
+  
+  if (faculty) {
+    deptSelect.disabled = false;
+    const depts = FacultyService.getDepartments(faculty);
+    depts.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d;
+      opt.textContent = d;
+      deptSelect.appendChild(opt);
+    });
+  } else {
+    deptSelect.disabled = true;
+  }
+}
+
+function updateLevels() {
+  const faculty = document.getElementById('facultySelect').value;
+  const dept = document.getElementById('departmentSelect').value;
+  const levelSelect = document.getElementById('levelSelect');
+  
+  levelSelect.innerHTML = '<option value="">Select Level</option>';
+  document.getElementById('coursesDisplay').innerHTML = '';
+  
+  if (dept) {
+    levelSelect.disabled = false;
+    const levels = FacultyService.getLevels(faculty, dept);
+    levels.forEach(l => {
+      const opt = document.createElement('option');
+      opt.value = l;
+      opt.textContent = l;
+      levelSelect.appendChild(opt);
+    });
+  } else {
+    levelSelect.disabled = true;
+  }
+}
+
+function updateCourses() {
+  const faculty = document.getElementById('facultySelect').value;
+  const dept = document.getElementById('departmentSelect').value;
+  const level = document.getElementById('levelSelect').value;
+  const display = document.getElementById('coursesDisplay');
+  
+  display.innerHTML = '';
+  
+  if (level) {
+    const courses = FacultyService.getCourses(faculty, dept, level);
+    courses.forEach(c => {
+      const tag = document.createElement('span');
+      tag.className = 'course-tag';
+      tag.textContent = c;
+      display.appendChild(tag);
+    });
+  }
+}
+
+function clearSelection() {
+  document.getElementById('facultySelect').value = '';
+  document.getElementById('departmentSelect').innerHTML = '<option value="">Select Department</option>';
+  document.getElementById('departmentSelect').disabled = true;
+  document.getElementById('levelSelect').innerHTML = '<option value="">Select Level</option>';
+  document.getElementById('levelSelect').disabled = true;
+  document.getElementById('coursesDisplay').innerHTML = '';
+}
+
+// Faculty Table
+function initFacultyTable() {
+  const tbody = document.getElementById('facultyTable');
+  const faculties = FacultyService.getFaculties().slice(0, 6);
+  
+  faculties.forEach((faculty, i) => {
+    const depts = FacultyService.getDepartments(faculty);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${faculty}</strong></td>
+      <td>${depts.length} departments</td>
+      <td><span class="status-badge ${i % 2 === 0 ? 'active' : 'pending'}">${i % 2 === 0 ? 'Active' : 'Updated'}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+</script>
+
+</body>
+</html>

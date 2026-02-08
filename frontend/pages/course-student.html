@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USP – Course Assignment</title>
+
+<style>
+/* ===== GLOBAL RESET & FIX ===== */
+*,
+*::before,
+*::after{
+  box-sizing:border-box;
+}
+html, body{
+  height:100%;
+  width:100%;
+  overflow-x:hidden;
+}
+body{
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background:#f4f6f9;
+  margin:0;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ===== HEADER ===== */
+header{
+  background:#003366;
+  color:#fff;
+  padding:14px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  position:relative;
+}
+header h1{
+  margin:0;
+  font-size:17px;
+  line-height:1.3;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.nav-links{
+  display:flex;
+  gap:14px;
+}
+.nav-links a{
+  color:#fff;
+  text-decoration:none;
+  font-weight:bold;
+  font-size:14px;
+}
+
+.hamburger{
+  display:none;
+  font-size:24px;
+  cursor:pointer;
+}
+
+/* ===== MOBILE MENU ===== */
+.mobile-menu{
+  display:none;
+  position:absolute;
+  top:100%;
+  right:10px;
+  width:200px;
+  background:#fff;
+  border-radius:8px;
+  box-shadow:0 10px 25px rgba(0,0,0,.2);
+  overflow:hidden;
+  z-index:1000;
+}
+.mobile-menu a{
+  display:block;
+  padding:12px 16px;
+  color:#003366;
+  text-decoration:none;
+  font-weight:600;
+  border-bottom:1px solid #eee;
+}
+
+/* ===== MAIN ===== */
+main{
+  flex:1;
+  width:100%;
+  max-width:900px;
+  margin:20px auto;
+  padding:0 12px;
+}
+.section{
+  background:#fff;
+  padding:18px;
+  border-radius:10px;
+  box-shadow:0 6px 18px rgba(0,0,0,.12);
+}
+h2{
+  margin-top:0;
+  color:#003366;
+  font-size:18px;
+}
+
+/* ===== ASSIGNMENT GRID ===== */
+.assignment{
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:16px;
+  width:100%;
+}
+.assignment p{
+  margin:0;
+  font-size:14px;
+  word-wrap:break-word;
+}
+.assignment p strong{
+  display:block;
+  color:#003366;
+  margin-bottom:4px;
+}
+
+/* ===== INSTRUCTIONS ===== */
+.instructions{
+  grid-column:1/-1;
+  background:#f9fbff;
+  border-left:4px solid #003366;
+  padding:14px;
+  border-radius:6px;
+  font-size:14px;
+  line-height:1.5;
+  word-wrap:break-word;
+}
+
+/* ===== SUBMISSION TYPE ===== */
+.submission-type{
+  display:flex;
+  flex-wrap:wrap;
+}
+.submission-type button{
+  background:#f0f0f0;
+  border:none;
+  padding:6px 10px;
+  border-radius:5px;
+  font-size:13px;
+  margin:4px 6px 0 0;
+  cursor:pointer;
+}
+.submission-type button.selected{
+  background:#003366;
+  color:#fff;
+}
+
+/* ===== COUNTDOWN ===== */
+.countdown{
+  font-weight:bold;
+}
+.countdown.red{
+  color:#c0392b;
+}
+
+/* ===== ACTION BUTTON ===== */
+.button-group{
+  grid-column:1/-1;
+  margin-top:10px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.button-group button{
+  background:#003366;
+  color:#fff;
+  border:none;
+  padding:10px 18px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:14px;
+  width:max-content;
+}
+.button-group button:hover{
+  background:#002244;
+}
+
+/* ===== FOOTER ===== */
+footer{
+  background:#002244;
+  color:#fff;
+  text-align:center;
+  padding:14px;
+  font-size:13px;
+}
+
+/* ===== RESPONSIVE FIXES ===== */
+@media(max-width:900px){
+  .nav-links{display:none}
+  .hamburger{display:block}
+}
+
+@media(max-width:480px){
+  header h1{
+    font-size:15px;
+  }
+  .assignment{
+    grid-template-columns:1fr;
+  }
+  h2{
+    font-size:16px;
+  }
+  .button-group button{
+    width:100%;
+    text-align:center;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>USP | <span id="headerCourse">Course</span></h1>
+
+  <nav class="nav-links">
+    <a href="dashboard-student.html">Dashboard</a>
+    <a href="profile-student.html">Profile</a>
+    <a href="student signup and login.html" onclick="logout()">Logout</a>
+  </nav>
+
+  <div class="hamburger" onclick="toggleMenu()">☰</div>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="dashboard-student.html">Dashboard</a>
+    <a href="profile-student.html">Profile</a>
+    <a href="student signup and login.html" onclick="logout()">Logout</a>
+  </div>
+</header>
+
+<main>
+  <div class="section">
+    <h2 id="courseTitle"></h2>
+    <div id="assignmentContainer"></div>
+  </div>
+</main>
+
+<footer>
+© 2026 Unified Submission Portal (USP). All rights reserved.
+</footer>
+
+<script>
+/* ===== NAV ===== */
+function toggleMenu(){
+  const m=document.getElementById("mobileMenu");
+  m.style.display=m.style.display==="block"?"none":"block";
+}
+document.addEventListener("click",e=>{
+  const m=document.getElementById("mobileMenu");
+  if(!m.contains(e.target)&&!e.target.classList.contains("hamburger")){
+    m.style.display="none";
+  }
+});
+
+/* ===== COURSE ===== */
+const courseCode=localStorage.getItem("selectedCourse") || "No Course Selected";
+headerCourse.innerText=courseCode;
+courseTitle.innerText="Course: "+courseCode;
+
+/* ===== ASSIGNMENT ===== */
+const assignments=JSON.parse(localStorage.getItem(courseCode+"_assignments"))||[];
+const assignment=assignments[0];
+const container=document.getElementById("assignmentContainer");
+
+if(!assignment){
+  container.innerHTML="<p>No assignment published for this course yet.</p>";
+}else{
+  const card=document.createElement("div");
+  card.className="assignment";
+
+  card.innerHTML=`
+    <p><strong>Assignment Title</strong>${assignment.title}</p>
+    <p><strong>Total Marks</strong>${assignment.marks}</p>
+    <p><strong>Start Date</strong>${assignment.startDate} ${assignment.startTime}</p>
+    <p><strong>Deadline</strong>${assignment.deadlineDate} ${assignment.deadlineTime}</p>
+
+    <div class="instructions">
+      <strong>Instructions</strong><br>
+      ${assignment.instructions || "Follow the instructions given by the lecturer carefully before submission."}
+    </div>
+
+    <div>
+      <strong>Submission Type Allowed</strong>
+      <div class="submission-type">
+        ${assignment.type.map(t=>`<button>${t}</button>`).join("")}
+      </div>
+    </div>
+
+    <div>
+      <strong>Time Remaining</strong>
+      <div class="countdown" id="countdown">--</div>
+    </div>
+
+    <div class="button-group">
+      <button onclick="startAssignment()">Submit Assignment</button>
+    </div>
+  `;
+  container.appendChild(card);
+}
+
+/* ===== SUBMISSION TYPE ===== */
+document.querySelectorAll(".submission-type button").forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll(".submission-type button").forEach(b=>b.classList.remove("selected"));
+    btn.classList.add("selected");
+    localStorage.setItem("submissionType",btn.innerText);
+  };
+});
+
+/* ===== COUNTDOWN ===== */
+if(assignment){
+  const countdownEl=document.getElementById("countdown");
+  const deadline=new Date(`${assignment.deadlineDate} ${assignment.deadlineTime}`).getTime();
+  setInterval(()=>{
+    const diff=deadline-Date.now();
+    if(diff<=0){
+      countdownEl.innerText="Closed";
+      countdownEl.classList.add("red");
+      return;
+    }
+    const d=Math.floor(diff/(1000*60*60*24));
+    const h=Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+    const m=Math.floor((diff%(1000*60*60))/(1000*60));
+    const s=Math.floor((diff%(1000*60))/1000);
+    countdownEl.innerText=`${d}d ${h}h ${m}m ${s}s`;
+    if(d===0)countdownEl.classList.add("red");
+  },1000);
+}
+
+/* ===== ACTION ===== */
+function startAssignment(){
+  if(!localStorage.getItem("submissionType")){
+    alert("Please select a submission type first.");
+    return;
+  }
+  window.location.href="view-submission-student.html";
+}
+function logout(){
+  localStorage.clear();
+  window.location.href="student signup and login.html";
+}
+</script>
+
+</body>
+</html>

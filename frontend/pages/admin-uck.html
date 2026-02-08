@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USP Admin - UCK Management</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+  position: fixed; top: 0; left: 0; width: 260px; height: 100vh;
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  color: #fff; z-index: 1000; transition: transform 0.3s ease;
+}
+.sidebar-header { padding: 20px; border-bottom: 1px solid #334155; display: flex; align-items: center; gap: 12px; }
+.sidebar-header .logo { width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
+.sidebar-header h2 { font-size: 20px; font-weight: 700; }
+.sidebar-nav { padding: 20px 0; }
+.nav-section { padding: 0 20px; margin-bottom: 10px; }
+.nav-section-title { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 600; letter-spacing: 1px; margin-bottom: 10px; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #94a3b8; text-decoration: none; transition: all 0.2s; border-left: 3px solid transparent; cursor: pointer; }
+.nav-item:hover { background: #1e293b; color: #fff; }
+.nav-item.active { background: linear-gradient(90deg, rgba(59,130,246,0.2), transparent); border-left-color: #3b82f6; color: #fff; }
+.nav-item svg { width: 20px; height: 20px; }
+.nav-item span { font-size: 14px; font-weight: 500; }
+.sidebar-footer { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; border-top: 1px solid #334155; }
+.user-info { display: flex; align-items: center; gap: 12px; }
+.user-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+.user-details h4 { font-size: 14px; font-weight: 600; }
+.user-details p { font-size: 12px; color: #64748b; }
+
+/* Main Content */
+.main-content { margin-left: 260px; min-height: 100vh; }
+
+/* Header */
+.header { background: #fff; padding: 16px 30px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 100; }
+.header-left { display: flex; align-items: center; gap: 20px; }
+.menu-toggle { display: none; background: none; border: none; cursor: pointer; padding: 8px; border-radius: 8px; }
+.menu-toggle:hover { background: #f1f5f9; }
+.search-box { position: relative; }
+.search-box input { width: 300px; padding: 10px 16px 10px 40px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: #f8fafc; }
+.search-box input:focus { outline: none; border-color: #3b82f6; background: #fff; }
+.search-box svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: #94a3b8; }
+.header-right { display: flex; align-items: center; gap: 16px; }
+.header-btn { position: relative; background: none; border: none; padding: 10px; border-radius: 10px; cursor: pointer; color: #64748b; }
+.header-btn:hover { background: #f1f5f9; color: #1e293b; }
+.header-btn svg { width: 22px; height: 22px; }
+.badge { position: absolute; top: 4px; right: 4px; width: 18px; height: 18px; background: #ef4444; color: #fff; font-size: 10px; font-weight: 600; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.header-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 50%; cursor: pointer; }
+
+/* Page Content */
+.page-content { padding: 30px; }
+.page-header { margin-bottom: 30px; }
+.page-header h1 { font-size: 28px; font-weight: 700; color: #1e293b; }
+.page-header p { color: #64748b; margin-top: 4px; }
+
+/* Cards */
+.card { background: #fff; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px; }
+.card-header { padding: 20px 24px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
+.card-header h3 { font-size: 18px; font-weight: 600; color: #1e293b; }
+.card-body { padding: 24px; }
+
+/* UCK Form */
+.uck-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 24px; }
+.form-group { display: flex; flex-direction: column; }
+.form-group label { display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px; }
+.form-group select, .form-group input { width: 100%; padding: 14px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: #fff; }
+.form-group select:focus, .form-group input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+.form-group select:disabled, .form-group input:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+
+/* UCK Input */
+.uck-input-group { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+.uck-input-group .form-group { flex: 1; min-width: 200px; }
+.uck-input-group .form-group input { font-family: 'Courier New', monospace; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; }
+
+/* Buttons */
+.btn { padding: 14px 28px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 8px; }
+.btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
+.btn-primary:disabled { background: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-secondary { background: #f1f5f9; color: #475569; }
+.btn-secondary:hover { background: #e2e8f0; }
+.btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+.btn-success:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(16,185,129,0.4); }
+.btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
+.btn-danger:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239,68,68,0.4); }
+.btn-sm { padding: 8px 16px; font-size: 13px; }
+
+/* Alert */
+.alert { padding: 16px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+.alert svg { width: 24px; height: 24px; flex-shrink: 0; }
+.alert-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+.alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+.alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+.alert-warning { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+
+/* Selected Course Display */
+.selected-course { background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 2px solid #3b82f6; border-radius: 12px; padding: 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; }
+.selected-course-info h4 { font-size: 20px; color: #1e40af; margin-bottom: 4px; }
+.selected-course-info p { color: #3b82f6; font-size: 14px; }
+.selected-course-badge { background: #3b82f6; color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: 600; }
+
+/* Table */
+.table-container { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+th { background: #f8fafc; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+td { font-size: 14px; color: #374151; }
+tr:hover { background: #f8fafc; }
+.status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+.status-badge.active { background: #d1fae5; color: #059669; }
+.status-badge.expired { background: #fee2e2; color: #dc2626; }
+.status-badge.pending { background: #fef3c7; color: #d97706; }
+.action-btns { display: flex; gap: 8px; }
+
+/* UCK Code Display */
+.uck-code { font-family: 'Courier New', monospace; font-size: 14px; font-weight: 600; background: #f1f5f9; padding: 6px 12px; border-radius: 6px; letter-spacing: 1px; }
+
+/* Stats Cards */
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+.stat-card { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.stat-card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+.stat-card-icon.purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+.stat-card-icon.green { background: linear-gradient(135deg, #10b981, #059669); }
+.stat-card-icon.orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.stat-card-icon.red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.stat-card-icon svg { width: 24px; height: 24px; color: #fff; }
+.stat-card h4 { font-size: 28px; font-weight: 700; color: #1e293b; }
+.stat-card p { font-size: 14px; color: #64748b; margin-top: 4px; }
+
+/* Generate UCK Section */
+.generate-section { background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-radius: 12px; padding: 24px; margin-top: 20px; }
+.generate-section h4 { font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 16px; }
+.generated-key { background: #fff; border: 2px dashed #3b82f6; border-radius: 12px; padding: 20px; text-align: center; margin-top: 16px; }
+.generated-key h3 { font-family: 'Courier New', monospace; font-size: 32px; letter-spacing: 4px; color: #1e293b; margin-bottom: 12px; }
+.generated-key p { color: #64748b; font-size: 14px; }
+.copy-btn { margin-top: 16px; }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main-content { margin-left: 0; }
+  .menu-toggle { display: block; }
+  .uck-form { grid-template-columns: 1fr; }
+  .uck-input-group { flex-direction: column; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .header { padding: 12px 16px; }
+  .page-content { padding: 16px; }
+  .search-box { display: none; }
+  .stats-row { grid-template-columns: 1fr; }
+}
+
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
+.overlay.show { display: block; }
+
+/* Tabs */
+.tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+.tab { padding: 12px 24px; border: none; background: #fff; font-size: 14px; font-weight: 500; color: #64748b; cursor: pointer; border-radius: 10px; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.tab:hover { color: #1e293b; }
+.tab.active { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Overlay for mobile -->
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">U</div>
+    <h2>USP Admin</h2>
+  </div>
+  
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-title">Main Menu</div>
+      <a href="admin-dashboard.html" class="nav-item">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="admin-faculties.html" class="nav-item">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        <span>Faculties</span>
+      </a>
+      <a href="admin-courses.html" class="nav-item">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <span>Courses</span>
+      </a>
+      <a href="admin-uck.html" class="nav-item active">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+        <span>UCK Management</span>
+      </a>
+    </div>
+    
+    <div class="nav-section">
+      <div class="nav-section-title">System</div>
+      <a href="admin-settings.html" class="nav-item">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span>Settings</span>
+      </a>
+    </div>
+  </nav>
+  
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar">AD</div>
+      <div class="user-details">
+        <h4>Admin User</h4>
+        <p>Super Admin</p>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <button class="menu-toggle" onclick="toggleSidebar()">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="search-box">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" placeholder="Search UCK..." id="searchInput">
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="header-btn">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="badge">5</span>
+      </button>
+      <button class="header-btn">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        <span class="badge">3</span>
+      </button>
+      <div class="header-avatar"></div>
+    </div>
+  </header>
+
+  <!-- Page Content -->
+  <div class="page-content">
+    <div class="page-header">
+      <h1>Unique Course Key (UCK) Management</h1>
+      <p>Generate and manage unique course keys for student enrollment</p>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-card-icon purple">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+        </div>
+        <h4 id="totalKeys">156</h4>
+        <p>Total UCKs Generated</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon green">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <h4 id="activeKeys">142</h4>
+        <p>Active Keys</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon orange">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <h4 id="usedKeys">89</h4>
+        <p>Used Keys</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon red">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+        </div>
+        <h4 id="expiredKeys">14</h4>
+        <p>Expired Keys</p>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('assign')">Assign UCK</button>
+      <button class="tab" onclick="switchTab('generate')">Generate New</button>
+      <button class="tab" onclick="switchTab('manage')">Manage Keys</button>
+    </div>
+
+    <!-- Assign UCK Tab -->
+    <div class="tab-content active" id="assign-tab">
+      <!-- Alert Messages -->
+      <div class="alert alert-info" id="infoAlert">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Select a course to assign a Unique Course Key (UCK). The UCK allows students to register for the course.</span>
+      </div>
+      
+      <div id="successAlert" class="alert alert-success" style="display:none;">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span id="successMessage">UCK assigned successfully!</span>
+      </div>
+
+      <!-- UCK Assignment Form -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Assign UCK to Course</h3>
+        </div>
+        <div class="card-body">
+          <div class="uck-form">
+            <div class="form-group">
+              <label>Faculty</label>
+              <select id="uckFaculty" onchange="updateUckDepartments()">
+                <option value="">Select Faculty</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Department</label>
+              <select id="uckDepartment" onchange="updateUckLevels()" disabled>
+                <option value="">Select Department</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Level</label>
+              <select id="uckLevel" onchange="updateUckCourses()" disabled>
+                <option value="">Select Level</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Course</label>
+              <select id="uckCourse" onchange="selectCourse()" disabled>
+                <option value="">Select Course</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Selected Course Display -->
+          <div class="selected-course" id="selectedCourseDisplay" style="display:none;">
+            <div class="selected-course-info">
+              <h4 id="selectedCourseName">CSC301</h4>
+              <p id="selectedCoursePath">ICT → Computer Science → 300L</p>
+            </div>
+            <div class="selected-course-badge">Selected</div>
+          </div>
+
+          <!-- UCK Input -->
+          <div class="uck-input-group">
+            <div class="form-group">
+              <label>Enter UCK (Unique Course Key)</label>
+              <input type="text" id="uckInput" placeholder="Enter UCK e.g., ABC123XYZ" maxlength="12" oninput="validateUck()">
+            </div>
+            <button class="btn btn-primary" id="assignBtn" onclick="assignUck()" disabled>
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+              Assign UCK
+            </button>
+            <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Generate UCK Tab -->
+    <div class="tab-content" id="generate-tab">
+      <div class="card">
+        <div class="card-header">
+          <h3>Generate New UCK</h3>
+        </div>
+        <div class="card-body">
+          <div class="uck-form">
+            <div class="form-group">
+              <label>Faculty</label>
+              <select id="genFaculty" onchange="updateGenDepts()">
+                <option value="">Select Faculty</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Department</label>
+              <select id="genDepartment" onchange="updateGenLevels()" disabled>
+                <option value="">Select Department</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Level</label>
+              <select id="genLevel" onchange="updateGenCourses()" disabled>
+                <option value="">Select Level</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Course</label>
+              <select id="genCourse" disabled>
+                <option value="">Select Course</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="generate-section">
+            <h4>UCK Generation Options</h4>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:16px;">
+              <div class="form-group">
+                <label>Key Format</label>
+                <select id="keyFormat">
+                  <option value="alphanumeric">Alphanumeric (ABC123)</option>
+                  <option value="numeric">Numeric Only (123456)</option>
+                  <option value="alpha">Letters Only (ABCDEF)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Key Length</label>
+                <select id="keyLength">
+                  <option value="6">6 Characters</option>
+                  <option value="8" selected>8 Characters</option>
+                  <option value="10">10 Characters</option>
+                  <option value="12">12 Characters</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Validity Period</label>
+                <select id="keyValidity">
+                  <option value="semester">Current Semester</option>
+                  <option value="year">Academic Year</option>
+                  <option value="permanent">Permanent</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-success" onclick="generateUck()">
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+              Generate UCK
+            </button>
+
+            <div class="generated-key" id="generatedKeyDisplay" style="display:none;">
+              <p style="margin-bottom:8px;">Generated UCK:</p>
+              <h3 id="generatedKey">ABC12XYZ</h3>
+              <p>Copy and share this key with students</p>
+              <button class="btn btn-primary copy-btn" onclick="copyUck()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                Copy to Clipboard
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manage Keys Tab -->
+    <div class="tab-content" id="manage-tab">
+      <div class="card">
+        <div class="card-header">
+          <h3>All Assigned UCKs</h3>
+          <div style="display:flex;gap:12px;">
+            <select id="filterStatus" onchange="filterKeys()" style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;">
+              <option value="">All Status</option>
+              <option value="active">Active</option>
+              <option value="used">Used</option>
+              <option value="expired">Expired</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="exportKeys()">
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              Export
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>UCK Code</th>
+                  <th>Course</th>
+                  <th>Department</th>
+                  <th>Assigned Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="uckTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Faculty Data Script -->
+<script src="faculty.js"></script>
+
+<script>
+// Sample UCK Data
+const uckData = [
+  { code: 'CSC3A1B2C', course: 'CSC301', dept: 'Computer Science', faculty: 'ICT', date: '2025-01-15', status: 'active' },
+  { code: 'ACC2D3E4F', course: 'ACC201', dept: 'Accounting', faculty: 'Administration', date: '2025-01-14', status: 'active' },
+  { code: 'EEE4G5H6I', course: 'EEE401', dept: 'Electrical Engineering', faculty: 'Engineering', date: '2025-01-13', status: 'used' },
+  { code: 'BIO1J7K8L', course: 'BIO101', dept: 'Biology', faculty: 'Science', date: '2025-01-12', status: 'active' },
+  { code: 'LAW3M9N0P', course: 'LAW301', dept: 'Common Law', faculty: 'Law', date: '2025-01-10', status: 'expired' },
+  { code: 'CYB2Q1R2S', course: 'CYB201', dept: 'Cybersecurity', faculty: 'ICT', date: '2025-01-09', status: 'active' },
+];
+
+// Sidebar Toggle
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+// Tab Switching
+function switchTab(tabName) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  
+  event.target.classList.add('active');
+  document.getElementById(tabName + '-tab').classList.add('active');
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+  initDropdowns();
+  initUckTable();
+});
+
+// Initialize Dropdowns
+function initDropdowns() {
+  const faculties = FacultyService.getFaculties();
+  
+  // Assign tab dropdowns
+  const uckFaculty = document.getElementById('uckFaculty');
+  const genFaculty = document.getElementById('genFaculty');
+  
+  faculties.forEach(f => {
+    uckFaculty.innerHTML += `<option value="${f}">${f}</option>`;
+    genFaculty.innerHTML += `<option value="${f}">${f}</option>`;
+  });
+}
+
+// Assign Tab Functions
+function updateUckDepartments() {
+  const faculty = document.getElementById('uckFaculty').value;
+  const deptSelect = document.getElementById('uckDepartment');
+  const levelSelect = document.getElementById('uckLevel');
+  const courseSelect = document.getElementById('uckCourse');
+  
+  deptSelect.innerHTML = '<option value="">Select Department</option>';
+  levelSelect.innerHTML = '<option value="">Select Level</option>';
+  courseSelect.innerHTML = '<option value="">Select Course</option>';
+  levelSelect.disabled = true;
+  courseSelect.disabled = true;
+  
+  document.getElementById('selectedCourseDisplay').style.display = 'none';
+  document.getElementById('assignBtn').disabled = true;
+  
+  if (faculty) {
+    deptSelect.disabled = false;
+    const depts = FacultyService.getDepartments(faculty);
+    depts.forEach(d => {
+      deptSelect.innerHTML += `<option value="${d}">${d}</option>`;
+    });
+  } else {
+    deptSelect.disabled = true;
+  }
+}
+
+function updateUckLevels() {
+  const faculty = document.getElementById('uckFaculty').value;
+  const dept = document.getElementById('uckDepartment').value;
+  const levelSelect = document.getElementById('uckLevel');
+  const courseSelect = document.getElementById('uckCourse');
+  
+  levelSelect.innerHTML = '<option value="">Select Level</option>';
+  courseSelect.innerHTML = '<option value="">Select Course</option>';
+  courseSelect.disabled = true;
+  
+  document.getElementById('selectedCourseDisplay').style.display = 'none';
+  document.getElementById('assignBtn').disabled = true;
+  
+  if (dept) {
+    levelSelect.disabled = false;
+    const levels = FacultyService.getLevels(faculty, dept);
+    levels.forEach(l => {
+      levelSelect.innerHTML += `<option value="${l}">${l}</option>`;
+    });
+  } else {
+    levelSelect.disabled = true;
+  }
+}
+
+function updateUckCourses() {
+  const faculty = document.getElementById('uckFaculty').value;
+  const dept = document.getElementById('uckDepartment').value;
+  const level = document.getElementById('uckLevel').value;
+  const courseSelect = document.getElementById('uckCourse');
+  
+  courseSelect.innerHTML = '<option value="">Select Course</option>';
+  
+  document.getElementById('selectedCourseDisplay').style.display = 'none';
+  document.getElementById('assignBtn').disabled = true;
+  
+  if (level) {
+    courseSelect.disabled = false;
+    const courses = FacultyService.getCourses(faculty, dept, level);
+    courses.forEach(c => {
+      courseSelect.innerHTML += `<option value="${c}">${c}</option>`;
+    });
+  } else {
+    courseSelect.disabled = true;
+  }
+}
+
+function selectCourse() {
+  const faculty = document.getElementById('uckFaculty').value;
+  const dept = document.getElementById('uckDepartment').value;
+  const level = document.getElementById('uckLevel').value;
+  const course = document.getElementById('uckCourse').value;
+  
+  if (course) {
+    document.getElementById('selectedCourseDisplay').style.display = 'flex';
+    document.getElementById('selectedCourseName').textContent = course;
+    document.getElementById('selectedCoursePath').textContent = `${faculty} → ${dept} → ${level}`;
+  } else {
+    document.getElementById('selectedCourseDisplay').style.display = 'none';
+  }
+  
+  validateUck();
+}
+
+function validateUck() {
+  const course = document.getElementById('uckCourse').value;
+  const uck = document.getElementById('uckInput').value.trim();
+  const assignBtn = document.getElementById('assignBtn');
+  
+  if (course && uck.length >= 6) {
+    assignBtn.disabled = false;
+  } else {
+    assignBtn.disabled = true;
+  }
+}
+
+function assignUck() {
+  const course = document.getElementById('uckCourse').value;
+  const uck = document.getElementById('uckInput').value.trim().toUpperCase();
+  const faculty = document.getElementById('uckFaculty').value;
+  const dept = document.getElementById('uckDepartment').value;
+  
+  // Add to table
+  uckData.unshift({
+    code: uck,
+    course: course,
+    dept: dept,
+    faculty: faculty,
+    date: new Date().toISOString().split('T')[0],
+    status: 'active'
+  });
+  
+  initUckTable();
+  updateStats();
+  
+  // Show success message
+  document.getElementById('successAlert').style.display = 'flex';
+  document.getElementById('successMessage').textContent = `UCK "${uck}" assigned to ${course} successfully!`;
+  document.getElementById('infoAlert').style.display = 'none';
+  
+  // Clear form
+  setTimeout(() => {
+    clearForm();
+    document.getElementById('successAlert').style.display = 'none';
+    document.getElementById('infoAlert').style.display = 'flex';
+  }, 3000);
+}
+
+function clearForm() {
+  document.getElementById('uckFaculty').value = '';
+  document.getElementById('uckDepartment').innerHTML = '<option value="">Select Department</option>';
+  document.getElementById('uckDepartment').disabled = true;
+  document.getElementById('uckLevel').innerHTML = '<option value="">Select Level</option>';
+  document.getElementById('uckLevel').disabled = true;
+  document.getElementById('uckCourse').innerHTML = '<option value="">Select Course</option>';
+  document.getElementById('uckCourse').disabled = true;
+  document.getElementById('uckInput').value = '';
+  document.getElementById('selectedCourseDisplay').style.display = 'none';
+  document.getElementById('assignBtn').disabled = true;
+}
+
+// Generate Tab Functions
+function updateGenDepts() {
+  const faculty = document.getElementById('genFaculty').value;
+  const deptSelect = document.getElementById('genDepartment');
+  
+  deptSelect.innerHTML = '<option value="">Select Department</option>';
+  document.getElementById('genLevel').innerHTML = '<option value="">Select Level</option>';
+  document.getElementById('genLevel').disabled = true;
+  document.getElementById('genCourse').innerHTML = '<option value="">Select Course</option>';
+  document.getElementById('genCourse').disabled = true;
+  
+  if (faculty) {
+    deptSelect.disabled = false;
+    const depts = FacultyService.getDepartments(faculty);
+    depts.forEach(d => {
+      deptSelect.innerHTML += `<option value="${d}">${d}</option>`;
+    });
+  } else {
+    deptSelect.disabled = true;
+  }
+}
+
+function updateGenLevels() {
+  const faculty = document.getElementById('genFaculty').value;
+  const dept = document.getElementById('genDepartment').value;
+  const levelSelect = document.getElementById('genLevel');
+  
+  levelSelect.innerHTML = '<option value="">Select Level</option>';
+  document.getElementById('genCourse').innerHTML = '<option value="">Select Course</option>';
+  document.getElementById('genCourse').disabled = true;
+  
+  if (dept) {
+    levelSelect.disabled = false;
+    const levels = FacultyService.getLevels(faculty, dept);
+    levels.forEach(l => {
+      levelSelect.innerHTML += `<option value="${l}">${l}</option>`;
+    });
+  } else {
+    levelSelect.disabled = true;
+  }
+}
+
+function updateGenCourses() {
+  const faculty = document.getElementById('genFaculty').value;
+  const dept = document.getElementById('genDepartment').value;
+  const level = document.getElementById('genLevel').value;
+  const courseSelect = document.getElementById('genCourse');
+  
+  courseSelect.innerHTML = '<option value="">Select Course</option>';
+  
+  if (level) {
+    courseSelect.disabled = false;
+    const courses = FacultyService.getCourses(faculty, dept, level);
+    courses.forEach(c => {
+      courseSelect.innerHTML += `<option value="${c}">${c}</option>`;
+    });
+  } else {
+    courseSelect.disabled = true;
+  }
+}
+
+function generateUck() {
+  const course = document.getElementById('genCourse').value;
+  const format = document.getElementById('keyFormat').value;
+  const length = parseInt(document.getElementById('keyLength').value);
+  
+  if (!course) {
+    alert('Please select a course first');
+    return;
+  }
+  
+  let chars = '';
+  if (format === 'alphanumeric') chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  else if (format === 'numeric') chars = '0123456789';
+  else chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  
+  let key = '';
+  for (let i = 0; i < length; i++) {
+    key += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  
+  document.getElementById('generatedKey').textContent = key;
+  document.getElementById('generatedKeyDisplay').style.display = 'block';
+  
+  // Add to data
+  const faculty = document.getElementById('genFaculty').value;
+  const dept = document.getElementById('genDepartment').value;
+  
+  uckData.unshift({
+    code: key,
+    course: course,
+    dept: dept,
+    faculty: faculty,
+    date: new Date().toISOString().split('T')[0],
+    status: 'active'
+  });
+  
+  initUckTable();
+  updateStats();
+}
+
+function copyUck() {
+  const key = document.getElementById('generatedKey').textContent;
+  navigator.clipboard.writeText(key).then(() => {
+    alert('UCK copied to clipboard!');
+  });
+}
+
+// UCK Table
+function initUckTable() {
+  const tbody = document.getElementById('uckTable');
+  tbody.innerHTML = uckData.map(uck => `
+    <tr>
+      <td><span class="uck-code">${uck.code}</span></td>
+      <td><strong>${uck.course}</strong></td>
+      <td>${uck.dept}</td>
+      <td>${uck.date}</td>
+      <td><span class="status-badge ${uck.status}">${uck.status.charAt(0).toUpperCase() + uck.status.slice(1)}</span></td>
+      <td>
+        <div class="action-btns">
+          <button class="btn btn-secondary btn-sm" onclick="copyCode('${uck.code}')">Copy</button>
+          <button class="btn btn-danger btn-sm" onclick="revokeUck('${uck.code}')">Revoke</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function copyCode(code) {
+  navigator.clipboard.writeText(code).then(() => {
+    alert('UCK copied: ' + code);
+  });
+}
+
+function revokeUck(code) {
+  if (confirm('Are you sure you want to revoke this UCK?')) {
+    const index = uckData.findIndex(u => u.code === code);
+    if (index > -1) {
+      uckData[index].status = 'expired';
+      initUckTable();
+      updateStats();
+    }
+  }
+}
+
+function filterKeys() {
+  const status = document.getElementById('filterStatus').value;
+  const tbody = document.getElementById('uckTable');
+  const filtered = status ? uckData.filter(u => u.status === status) : uckData;
+  
+  tbody.innerHTML = filtered.map(uck => `
+    <tr>
+      <td><span class="uck-code">${uck.code}</span></td>
+      <td><strong>${uck.course}</strong></td>
+      <td>${uck.dept}</td>
+      <td>${uck.date}</td>
+      <td><span class="status-badge ${uck.status}">${uck.status.charAt(0).toUpperCase() + uck.status.slice(1)}</span></td>
+      <td>
+        <div class="action-btns">
+          <button class="btn btn-secondary btn-sm" onclick="copyCode('${uck.code}')">Copy</button>
+          <button class="btn btn-danger btn-sm" onclick="revokeUck('${uck.code}')">Revoke</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function exportKeys() {
+  alert('Exporting UCK data...');
+  // In real app, this would download a CSV/Excel file
+}
+
+function updateStats() {
+  document.getElementById('totalKeys').textContent = uckData.length;
+  document.getElementById('activeKeys').textContent = uckData.filter(u => u.status === 'active').length;
+  document.getElementById('usedKeys').textContent = uckData.filter(u => u.status === 'used').length;
+  document.getElementById('expiredKeys').textContent = uckData.filter(u => u.status === 'expired').length;
+}
+</script>
+
+</body>
+</html>

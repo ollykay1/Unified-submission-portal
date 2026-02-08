@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submission Success – USP</title>
+<style>
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f4f6f9; margin:0; user-select:none; }
+header { background:#003366; color:#fff; padding:14px 20px; display:flex; justify-content:space-between; align-items:center; position:relative; }
+header h1 { margin:0; font-size:18px; }
+.nav-links { display:flex; gap:16px; }
+.nav-links a { color:#fff; text-decoration:none; font-weight:bold; font-size:14px; }
+.nav-links a:hover { text-decoration:underline; }
+.hamburger { display:none; font-size:22px; cursor:pointer; }
+.mobile-menu { display:none; position:absolute; top:60px; right:20px; background:#fff; border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,.2); overflow:hidden; z-index:1000; }
+.mobile-menu a { display:block; padding:12px 18px; color:#003366; text-decoration:none; font-weight:600; border-bottom:1px solid #eee; }
+.mobile-menu a:last-child { border-bottom:none; }
+.mobile-menu a:hover { background:#f0f4fa; }
+main { max-width:600px; margin:50px auto; background:#fff; padding:30px; border-radius:8px; box-shadow:0 5px 15px rgba(0,0,0,0.1); text-align:center; position:relative; }
+h2 { color:#003366; margin-bottom:20px; }
+p { font-size:16px; color:#333; }
+button { padding:12px 25px; background:#003366; color:#fff; border:none; border-radius:5px; cursor:pointer; font-size:16px; margin-top:20px; transition:.3s; }
+button:hover { background:#002244; }
+
+/* Pop-up */
+#popup {
+  display:none;
+  position:absolute;
+  top:20px; left:50%;
+  transform:translateX(-50%);
+  background:#e6f7ff;
+  color:#003366;
+  padding:20px 30px;
+  border:1px solid #003366;
+  border-radius:8px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.2);
+  z-index:1001;
+  font-size:16px;
+}
+
+/* Responsive */
+@media(max-width:768px){ 
+  .nav-links { display:none; } 
+  .hamburger { display:block; } 
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>USP | Submission Success</h1>
+  <nav class="nav-links">
+    <a href="dashboard-student.html">Dashboard</a>
+    <a href="profile-student.html">Profile</a>
+    <a href="student signup and login.html" onclick="logout()">Logout</a>
+  </nav>
+  <div class="hamburger" onclick="toggleMenu()">☰</div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="dashboard-student.html">Dashboard</a>
+    <a href="profile-student.html">Profile</a>
+    <a href="student signup and login.html" onclick="logout()">Logout</a>
+  </div>
+</header>
+
+<main>
+  <div id="popup">🎉 Congratulations! Your assignment has been submitted successfully!</div>
+  <h2>Submission Successful!</h2>
+  <p>Your assignment has been submitted successfully. You can review your submissions in the submission history.</p>
+  <button onclick="goToHistory()">Go to Submission History</button>
+</main>
+
+<script>
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("keydown", e => { if(e.ctrlKey && ["c","x","a","u"].includes(e.key.toLowerCase())) e.preventDefault(); });
+
+function toggleMenu(){
+  const menu = document.getElementById("mobileMenu");
+  menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+document.addEventListener("click", e => {
+  const menu = document.getElementById("mobileMenu");
+  if(!menu.contains(e.target) && !e.target.classList.contains('hamburger')) menu.style.display="none";
+});
+
+function logout() {
+  localStorage.clear();
+  window.location.href = "student signup and login.html";
+}
+
+function goToHistory() {
+  window.location.href = "view-submission-student.html";
+}
+
+// Show popup for 3 seconds
+window.addEventListener('load', ()=>{
+  const popup = document.getElementById("popup");
+  popup.style.display="block";
+  setTimeout(()=>{ popup.style.display="none"; }, 3000);
+});
+</script>
+
+</body>
+</html>
